@@ -19,21 +19,29 @@ const EXTENSIONS: Record<string, string> = {
 const FOLDERS = new Set(["produtos", "banners", "categorias"]);
 
 /**
- * O Blob aceita dois jeitos de autenticar e a integração da Vercel pode ter
- * criado qualquer um deles, com nome dependente do prefixo escolhido ao
- * conectar o store: um token de leitura/escrita, ou o id do store somado ao
- * `VERCEL_OIDC_TOKEN` que a Vercel injeta em runtime. Resolvemos os dois.
+ * Nomes possíveis da credencial do Blob. A integração da Vercel prefixa as
+ * variáveis com o texto escolhido na hora de conectar o store, então o nome
+ * depende da conexão — hoje o store da loja usa o prefixo `TESTE`. A ordem
+ * importa: o primeiro nome preenchido vence, e o store atual vem antes dos
+ * antigos para uma variável esquecida no projeto não sequestrar o upload.
+ */
+const TOKEN_VARS = ["TESTE_READ_WRITE_TOKEN", "BLOB_READ_WRITE_TOKEN"];
+const STORE_ID_VARS = ["TESTE_STORE_ID", "BLOB_STORE_ID"];
+
+/**
+ * O Blob aceita duas credenciais: um token de leitura/escrita, ou o id do
+ * store somado ao `VERCEL_OIDC_TOKEN` que a Vercel injeta em runtime. O token
+ * é o único que também funciona em dev local.
  */
 function blobAuth(): { token: string } | { storeId: string } | null {
-  const token =
-    process.env.BLOB_READ_WRITE_TOKEN ||
-    process.env.BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN;
-  if (token) return { token };
-
-  const storeId =
-    process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN_STORE_ID;
-  if (storeId) return { storeId };
-
+  for (const name of TOKEN_VARS) {
+    const token = process.env[name];
+    if (token) return { token };
+  }
+  for (const name of STORE_ID_VARS) {
+    const storeId = process.env[name];
+    if (storeId) return { storeId };
+  }
   return null;
 }
 
