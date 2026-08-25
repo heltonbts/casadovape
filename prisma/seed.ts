@@ -295,15 +295,12 @@ async function main() {
       id: "default",
       storeName: "Casa do Vape",
       tagline: "Os melhores pods e vapes, entrega rápida.",
-      whatsapp: "5511999999999",
+      whatsapp: "5588999275994",
       instagram: "casadovape",
       email: "contato@casadovape.com.br",
-      address: "São Paulo - SP",
       pixKey: "contato@casadovape.com.br",
       pixHolder: "Casa do Vape LTDA",
-      freeShippingMinCents: 20000,
-      flatShippingCents: 1500,
-      announcement: "Frete grátis acima de R$ 200 · Entrega no mesmo dia em São Paulo",
+      announcement: "Frete grátis em todos os pedidos · Pedido fechado no WhatsApp",
       ageGateEnabled: true,
       legalNotice:
         "Venda proibida para menores de 18 anos. Produtos contêm nicotina, substância que causa dependência.",
@@ -372,7 +369,7 @@ async function main() {
     data: [
       {
         title: "Pods descartáveis com até 20.000 puffs",
-        subtitle: "Entrega no mesmo dia em São Paulo. Pague no Pix e ganhe desconto.",
+        subtitle: "Frete grátis em todos os pedidos. Pague no Pix e ganhe desconto.",
         ctaLabel: "Ver coleção",
         linkUrl: "/produtos?categoria=pods-descartaveis",
         position: 1,

@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 const DEFAULTS = {
   id: "default",
   storeName: "Casa do Vape",
-  whatsapp: "5511999999999",
+  whatsapp: "5588999275994",
 };
 
 /**

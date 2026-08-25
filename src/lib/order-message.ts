@@ -75,3 +75,35 @@ export function buildOrderMessage(order: OrderForMessage, storeName: string) {
 }
 
 export const PAYMENT_LABELS = PAYMENT_LABEL;
+
+export type CartLine = {
+  productName: string;
+  variantName: string;
+  quantity: number;
+  unitCents: number;
+};
+
+/**
+ * Mensagem montada direto do carrinho, sem pedido gravado no banco: quem
+ * fecha a venda é a conversa no WhatsApp. Por isso não há número de pedido,
+ * endereço nem forma de pagamento aqui — tudo isso se combina no papo.
+ */
+export function buildCartMessage(items: CartLine[], storeName: string) {
+  const total = items.reduce((sum, i) => sum + i.unitCents * i.quantity, 0);
+
+  return [
+    `Olá! Quero fazer um pedido na ${storeName}.`,
+    "",
+    "*Itens*",
+    ...items.map((i) => {
+      const name =
+        i.variantName && i.variantName !== "Padrão"
+          ? `${i.productName} (${i.variantName})`
+          : i.productName;
+      return `• ${i.quantity}x ${name} — ${brl(i.unitCents * i.quantity)}`;
+    }),
+    "",
+    `*Total: ${brl(total)}*`,
+    "Entrega grátis.",
+  ].join("\n");
+}

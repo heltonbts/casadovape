@@ -6,17 +6,9 @@ import { ButtonLink } from "@/components/ui/button";
 import { cartSubtotal, useCart } from "@/lib/cart";
 import { brl } from "@/lib/utils";
 
-export function CartView({
-  freeShippingMinCents,
-  flatShippingCents,
-}: {
-  freeShippingMinCents: number;
-  flatShippingCents: number;
-}) {
+export function CartView() {
   const { items, hydrated, setQuantity, remove } = useCart();
   const subtotal = cartSubtotal(items);
-  const missingForFreeShipping = Math.max(0, freeShippingMinCents - subtotal);
-  const shipping = freeShippingMinCents > 0 && subtotal >= freeShippingMinCents ? 0 : flatShippingCents;
 
   if (!hydrated) {
     return <div className="mx-auto max-w-5xl px-4 py-16"><div className="surface h-64 animate-pulse" /></div>;
@@ -115,30 +107,22 @@ export function CartView({
             </div>
             <div className="flex justify-between">
               <dt className="text-white/50">Entrega</dt>
-              <dd className={shipping === 0 ? "text-emerald-300" : "text-white"}>
-                {shipping === 0 ? "Grátis" : brl(shipping)}
-              </dd>
+              <dd className="text-emerald-300">Grátis</dd>
             </div>
           </dl>
-
-          {missingForFreeShipping > 0 && freeShippingMinCents > 0 && (
-            <p className="mt-3 rounded-lg border border-accent-400/20 bg-accent-400/5 px-3 py-2 text-xs text-accent-300">
-              Faltam {brl(missingForFreeShipping)} para o frete grátis.
-            </p>
-          )}
 
           <div className="my-4 h-px bg-white/8" />
 
           <div className="flex items-end justify-between">
             <span className="text-sm text-white/50">Total</span>
-            <span className="text-2xl font-black text-white">{brl(subtotal + shipping)}</span>
+            <span className="text-2xl font-black text-white">{brl(subtotal)}</span>
           </div>
 
           <ButtonLink href="/checkout" size="lg" className="mt-5 w-full">
             Finalizar pedido
           </ButtonLink>
           <p className="mt-3 text-center text-xs text-white/35">
-            Cupom e forma de pagamento na próxima etapa.
+            O pedido é fechado pelo WhatsApp, na próxima etapa.
           </p>
           <Link
             href="/produtos"

@@ -1,15 +1,14 @@
 import { PageHeader } from "@/components/admin/ui";
 import { SettingsForm, type SettingsFormData } from "@/components/admin/settings-form";
 import { getSettings } from "@/lib/settings";
-import { fromCents } from "@/lib/utils";
 
 export const metadata = { title: "Configurações" };
 
 export default async function ConfigPage() {
   const s = await getSettings();
 
-  // A conversão mora aqui (Server Component) porque o módulo do formulário é
-  // "use client" — funções exportadas de lá não podem ser chamadas no servidor.
+  // O formulário é "use client" e trabalha só com strings; os nulos do banco
+  // viram "" aqui para os inputs nunca ficarem não-controlados.
   const initial: SettingsFormData = {
     storeName: s.storeName,
     tagline: s.tagline ?? "",
@@ -19,8 +18,6 @@ export default async function ConfigPage() {
     address: s.address ?? "",
     pixKey: s.pixKey ?? "",
     pixHolder: s.pixHolder ?? "",
-    freeShippingMin: s.freeShippingMinCents ? fromCents(s.freeShippingMinCents) : "",
-    flatShipping: s.flatShippingCents ? fromCents(s.flatShippingCents) : "",
     announcement: s.announcement ?? "",
     ageGateEnabled: s.ageGateEnabled,
     legalNotice: s.legalNotice ?? "",

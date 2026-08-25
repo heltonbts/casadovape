@@ -6,7 +6,6 @@ import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { saveSettingsAction } from "@/app/actions/admin/settings";
-import { toCents } from "@/lib/utils";
 
 export type SettingsFormData = {
   storeName: string;
@@ -17,8 +16,6 @@ export type SettingsFormData = {
   address: string;
   pixKey: string;
   pixHolder: string;
-  freeShippingMin: string;
-  flatShipping: string;
   announcement: string;
   ageGateEnabled: boolean;
   legalNotice: string;
@@ -44,8 +41,6 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
         address: form.address,
         pixKey: form.pixKey,
         pixHolder: form.pixHolder,
-        freeShippingMinCents: form.freeShippingMin ? toCents(form.freeShippingMin) : 0,
-        flatShippingCents: form.flatShipping ? toCents(form.flatShipping) : 0,
         announcement: form.announcement,
         ageGateEnabled: form.ageGateEnabled,
         legalNotice: form.legalNotice,
@@ -75,7 +70,7 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
             label="Faixa de aviso no topo"
             value={form.announcement}
             onChange={(v) => set("announcement", v)}
-            placeholder="Frete grátis acima de R$ 200"
+            placeholder="Frete grátis em todos os pedidos"
           />
         </div>
       </section>
@@ -97,7 +92,7 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
       </section>
 
       <section className="surface p-5">
-        <h2 className="mb-4 font-bold text-white">Pagamento e frete</h2>
+        <h2 className="mb-4 font-bold text-white">Pagamento</h2>
         <div className="grid gap-4">
           <Field
             label="Chave Pix"
@@ -106,20 +101,6 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
             hint="Aparece na confirmação do pedido. Deixe vazio para esconder o Pix."
           />
           <Field label="Titular da chave" value={form.pixHolder} onChange={(v) => set("pixHolder", v)} />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field
-              label="Frete grátis a partir de (R$)"
-              value={form.freeShippingMin}
-              onChange={(v) => set("freeShippingMin", v)}
-              placeholder="200,00"
-            />
-            <Field
-              label="Valor do frete (R$)"
-              value={form.flatShipping}
-              onChange={(v) => set("flatShipping", v)}
-              placeholder="15,00"
-            />
-          </div>
         </div>
       </section>
 

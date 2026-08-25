@@ -79,15 +79,7 @@ export function SiteFooter({
           <p className="mt-3 text-sm text-white/50">
             Pix, dinheiro ou cartão na entrega. O pedido é confirmado pelo WhatsApp.
           </p>
-          {settings.freeShippingMinCents > 0 && (
-            <p className="mt-3 text-sm text-accent-300">
-              Frete grátis acima de{" "}
-              {(settings.freeShippingMinCents / 100).toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })}
-            </p>
-          )}
+          <p className="mt-3 text-sm text-accent-300">Frete grátis em todos os pedidos</p>
         </div>
       </div>
 

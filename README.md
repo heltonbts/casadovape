@@ -1,6 +1,6 @@
 # Casa do Vape
 
-Loja completa (vitrine + checkout + painel administrativo com controle de estoque)
+Loja completa (vitrine + pedido pelo WhatsApp + painel administrativo com controle de estoque)
 construída em Next.js 16, Prisma 7 e PostgreSQL no Neon.
 
 > **Aviso**: a comercialização de cigarros eletrônicos é proibida no Brasil pela
@@ -71,9 +71,17 @@ WhatsApp. Ao marcar `PAID`/`SHIPPED`/`DELIVERED`, o estoque é debitado;
 ao cancelar, é devolvido. A flag `Order.stockApplied` garante que isso
 aconteça exatamente uma vez, mesmo com cliques repetidos.
 
-**O servidor nunca confia no carrinho.** `createOrder()` recalcula preço,
-desconto, frete e disponibilidade a partir do banco; o carrinho do cliente
-só informa quais variantes e quantidades ele quer.
+**A venda fecha no WhatsApp, não no site.** O carrinho existe, mas o botão
+final não grava pedido: monta a mensagem com os itens (`buildCartMessage()`,
+`src/lib/order-message.ts`) e abre o WhatsApp da loja com o texto pronto. Não há
+formulário de nome, endereço ou pagamento — tudo se combina na conversa. Duas
+consequências que valem lembrar: nenhum pedido novo aparece em `/admin/pedidos`,
+e o estoque só muda pelos movimentos lançados à mão em `/admin/estoque`.
+
+**Frete grátis, sem região.** Não há cálculo de entrega em lugar nenhum: a loja
+anuncia frete grátis e a entrega é combinada no WhatsApp. Por isso as colunas
+`freeShippingMinCents` / `flatShippingCents` continuam no banco mas não são
+lidas nem editáveis no painel.
 
 ## Estrutura
 
@@ -82,7 +90,7 @@ src/app/(loja)      vitrine: home, listagem, produto, carrinho, checkout, pedido
 src/app/(painel)    painel administrativo (protegido pelo layout)
 src/app/(entrar)    login do painel (fora do layout protegido)
 src/app/actions     Server Actions — cada uma revalida a própria sessão
-src/lib             db, auth, estoque, preços, catálogo, formatação
+src/lib             db, auth, estoque, catálogo, formatação
 src/components      ui/ (primitivos), store/ (loja), admin/ (painel)
 prisma/             schema, migrations e seed
 scripts/            teste de integração do estoque
