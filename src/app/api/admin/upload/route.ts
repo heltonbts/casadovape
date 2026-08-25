@@ -79,6 +79,9 @@ export async function POST(request: Request) {
     return Response.json({ url: blob.url, pathname: blob.pathname });
   } catch (error) {
     console.error("[upload] falha ao enviar para o Blob", error);
-    return fail("Falha ao enviar a imagem. Tente de novo.", 502);
+    // A rota é só para admin logado, então mostrar o motivo real na tela
+    // poupa uma ida ao painel de logs quando a credencial está errada.
+    const detail = error instanceof Error ? error.message : String(error);
+    return fail(`Falha ao enviar a imagem: ${detail}`, 502);
   }
 }
