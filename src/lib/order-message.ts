@@ -89,7 +89,12 @@ export type CartLine = {
  * linha em /admin/pedidos. Endereço e pagamento ficam de fora — isso se
  * combina no papo.
  */
-export function buildCartMessage(items: CartLine[], storeName: string, orderNumber: number) {
+export function buildCartMessage(
+  items: CartLine[],
+  storeName: string,
+  orderNumber: number,
+  customerName: string,
+) {
   const total = items.reduce((sum, i) => sum + i.unitCents * i.quantity, 0);
 
   return [
@@ -106,5 +111,7 @@ export function buildCartMessage(items: CartLine[], storeName: string, orderNumb
     "",
     `*Total: ${brl(total)}*`,
     "Entrega grátis em Aracati e região.",
+    "",
+    `Nome: ${customerName}`,
   ].join("\n");
 }

@@ -43,20 +43,16 @@ export const getBanners = cache(() =>
   db.banner.findMany({ where: { active: true }, orderBy: { position: "asc" } }),
 );
 
-export function getFeaturedProducts(take = 8) {
-  return db.product.findMany({
-    where: { active: true, featured: true },
-    select: PRODUCT_CARD_SELECT,
-    orderBy: { createdAt: "desc" },
-    take,
-  });
-}
-
-export function getNewestProducts(take = 8) {
+/**
+ * Catálogo inteiro, com os destaques na frente. A loja é pequena, então a home
+ * mostra tudo de uma vez em vez de vitrines separadas — quem chega vê o que
+ * existe sem precisar navegar.
+ */
+export function getAllProducts(take = 60) {
   return db.product.findMany({
     where: { active: true },
     select: PRODUCT_CARD_SELECT,
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
     take,
   });
 }

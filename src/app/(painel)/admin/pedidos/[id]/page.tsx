@@ -4,7 +4,11 @@ import { ArrowLeft, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { CopyButton } from "@/components/ui/copy-button";
-import { DeleteOrderButton, OrderStatusControls } from "@/components/admin/order-controls";
+import {
+  DeleteOrderButton,
+  OrderStatusControls,
+  OrderTotalEditor,
+} from "@/components/admin/order-controls";
 import { db } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import { buildOrderMessage, formatAddress, PAYMENT_LABELS } from "@/lib/order-message";
@@ -53,13 +57,20 @@ export default async function PedidoAdminPage(props: PageProps<"/admin/pedidos/[
 
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr] xl:items-start">
         <div className="space-y-6">
-          <section className="surface p-5">
+          <section className="surface space-y-5 p-5">
             <OrderStatusControls orderId={order.id} current={order.status} />
             {order.stockApplied && (
-              <p className="mt-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5 px-3 py-2 text-xs text-emerald-300">
+              <p className="rounded-lg border border-emerald-400/20 bg-emerald-400/5 px-3 py-2 text-xs text-emerald-300">
                 O estoque deste pedido já foi debitado.
               </p>
             )}
+            <div className="border-t border-white/8 pt-5">
+              <OrderTotalEditor
+                orderId={order.id}
+                subtotalCents={order.subtotalCents}
+                totalCents={order.totalCents}
+              />
+            </div>
           </section>
 
           <section className="surface p-5">
@@ -99,7 +110,12 @@ export default async function PedidoAdminPage(props: PageProps<"/admin/pedidos/[
             </dl>
 
             <div className="mt-4 flex items-end justify-between border-t border-white/8 pt-4">
-              <span className="text-sm text-white/50">Total</span>
+              <span className="text-sm text-white/50">
+                Total
+                {order.totalCents !== order.subtotalCents && (
+                  <span className="ml-1.5 text-xs text-amber-300">ajustado</span>
+                )}
+              </span>
               <span className="text-2xl font-black text-white">{brl(order.totalCents)}</span>
             </div>
           </section>

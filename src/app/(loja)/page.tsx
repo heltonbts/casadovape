@@ -2,17 +2,16 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, Sparkles, Truck, Zap } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
 import { ProductCard } from "@/components/store/product-card";
-import { getBanners, getCategories, getFeaturedProducts, getNewestProducts } from "@/lib/catalog";
+import { getAllProducts, getBanners, getCategories } from "@/lib/catalog";
 import { getSettings } from "@/lib/settings";
 import { brl } from "@/lib/utils";
 
 export default async function HomePage() {
-  const [settings, banners, categories, featured, newest] = await Promise.all([
+  const [settings, banners, categories, products] = await Promise.all([
     getSettings(),
     getBanners(),
     getCategories(),
-    getFeaturedProducts(8),
-    getNewestProducts(8),
+    getAllProducts(),
   ]);
 
   const hero = banners[0];
@@ -65,7 +64,7 @@ export default async function HomePage() {
             <div className="absolute -right-16 -top-16 size-56 rounded-full bg-brand-500/25 blur-3xl" />
             <div className="absolute -bottom-16 -left-10 size-48 rounded-full bg-accent-500/20 blur-3xl" />
             <div className="relative space-y-4">
-              {featured.slice(0, 3).map((p, i) => (
+              {products.slice(0, 3).map((p, i) => (
                 <Link
                   key={p.id}
                   href={`/produto/${p.slug}`}
@@ -88,31 +87,31 @@ export default async function HomePage() {
       </section>
 
       {/* ------------------------------------------------------- categorias */}
-      <section className="py-8">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {categories.map((c) => (
-            <Link
-              key={c.id}
-              href={`/produtos?categoria=${c.slug}`}
-              className="surface group p-5 transition hover:border-brand-400/50"
-            >
-              <h3 className="text-sm font-bold text-white group-hover:text-brand-200">{c.name}</h3>
-              <p className="mt-1 text-xs text-white/40">{c._count.products} produtos</p>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* --------------------------------------------------------- destaques */}
-      {featured.length > 0 && (
-        <Section title="Destaques" subtitle="Selecionados da loja" href="/produtos">
-          <ProductGrid products={featured} priority />
-        </Section>
+      {categories.length > 1 && (
+        <section className="py-8">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {categories.map((c) => (
+              <Link
+                key={c.id}
+                href={`/produtos?categoria=${c.slug}`}
+                className="surface group p-5 transition hover:border-brand-400/50"
+              >
+                <h3 className="text-sm font-bold text-white group-hover:text-brand-200">{c.name}</h3>
+                <p className="mt-1 text-xs text-white/40">{c._count.products} produtos</p>
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
 
-      {/* --------------------------------------------------------- novidades */}
-      <Section title="Chegou agora" subtitle="Últimos produtos cadastrados" href="/produtos?ordem=novidades">
-        <ProductGrid products={newest} />
+      {/* --------------------------------------------------------- catálogo */}
+      <Section
+        title="Todos os produtos"
+        subtitle={`${products.length} ${products.length === 1 ? "produto disponível" : "produtos disponíveis"} · destaques primeiro`}
+        href="/produtos"
+        linkLabel="Buscar e filtrar →"
+      >
+        <ProductGrid products={products} priority />
       </Section>
 
       {/* ------------------------------------------------------------ frete */}
@@ -133,11 +132,13 @@ function Section({
   title,
   subtitle,
   href,
+  linkLabel = "Ver todos →",
   children,
 }: {
   title: string;
   subtitle?: string;
   href: string;
+  linkLabel?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -151,7 +152,7 @@ function Section({
           href={href}
           className="shrink-0 text-sm font-medium text-brand-200 hover:text-white"
         >
-          Ver todos →
+          {linkLabel}
         </Link>
       </div>
       {children}
@@ -163,13 +164,13 @@ function ProductGrid({
   products,
   priority,
 }: {
-  products: Awaited<ReturnType<typeof getFeaturedProducts>>;
+  products: Awaited<ReturnType<typeof getAllProducts>>;
   priority?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       {products.map((p, i) => (
-        <ProductCard key={p.id} product={p} priority={priority && i < 4} />
+        <ProductCard key={p.id} product={p} priority={priority && i < 5} />
       ))}
     </div>
   );

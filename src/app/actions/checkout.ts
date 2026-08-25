@@ -9,6 +9,7 @@ const itemSchema = z.object({
 });
 
 const orderSchema = z.object({
+  customerName: z.string().trim().min(2, "Digite seu nome para a gente te chamar"),
   items: z.array(itemSchema).min(1, "Seu carrinho está vazio"),
 });
 
@@ -19,9 +20,9 @@ export type WhatsappOrderResult =
 
 /**
  * Registra o pedido no instante em que o cliente vai para o WhatsApp. Ele
- * nasce PENDING e sem dado nenhum de cadastro — quem o cliente é, como paga e
- * onde recebe se resolve na conversa. O número do pedido vai na mensagem, e é
- * ele que amarra o papo à linha em /admin/pedidos.
+ * nasce PENDING com o nome que o cliente digitou; como paga e onde recebe se
+ * resolve na conversa. O número do pedido vai na mensagem, e é ele que amarra
+ * o papo à linha em /admin/pedidos.
  *
  * Preço e disponibilidade são SEMPRE relidos do banco: o carrinho do cliente
  * mora no localStorage dele e só serve para dizer o que ele quer.
@@ -82,9 +83,9 @@ export async function createWhatsappOrder(
 
   const order = await db.order.create({
     data: {
-      // Sem formulário não há cadastro; o painel mostra isso como pendente de
-      // identificação e o lojista completa pela conversa se quiser.
-      customerName: "Cliente do WhatsApp",
+      // O nome é a única coisa que pedimos; telefone, endereço e pagamento
+      // saem da própria conversa no WhatsApp.
+      customerName: parsed.data.customerName,
       customerPhone: "",
       subtotalCents,
       // Frete grátis na cidade: não existe cálculo de entrega em lugar nenhum.

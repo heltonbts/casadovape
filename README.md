@@ -71,8 +71,13 @@ WhatsApp. Ao marcar `PAID`/`SHIPPED`/`DELIVERED`, o estoque é debitado;
 ao cancelar, é devolvido. A flag `Order.stockApplied` garante que isso
 aconteça exatamente uma vez, mesmo com cliques repetidos.
 
-**A venda fecha no WhatsApp, mas o pedido nasce no site.** Não há formulário de
-nome, endereço ou pagamento — isso se combina na conversa. O clique em "Enviar
+**Uma vitrine só, com tudo à vista.** A home não tem carrossel de "destaques" +
+"novidades": ela lista o catálogo inteiro num grid denso (`getAllProducts()`),
+com os produtos em destaque na frente — a loja é pequena e o cliente vê tudo sem
+navegar. `/produtos` continua existindo para busca e filtros, com 24 por página.
+
+**A venda fecha no WhatsApp, mas o pedido nasce no site.** O cliente digita só o
+nome; endereço e pagamento se combinam na conversa. O clique em "Enviar
 pedido" grava o pedido como `PENDING` (`createWhatsappOrder()`,
 `src/app/actions/checkout.ts`) e só então manda o cliente para o WhatsApp com a
 mensagem pronta, já com o número do pedido: é ele que amarra o papo à linha em

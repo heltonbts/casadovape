@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Loader2, MessageCircle, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
@@ -26,12 +26,19 @@ export function WhatsappCheckout({
   storeName: string;
 }) {
   const { items, hydrated, clear } = useCart();
+  const [name, setName] = useState("");
   const [pending, startTransition] = useTransition();
   const total = cartSubtotal(items);
 
   function submit() {
+    if (name.trim().length < 2) {
+      toast.error("Digite seu nome para a gente te chamar");
+      return;
+    }
+
     startTransition(async () => {
       const result = await createWhatsappOrder({
+        customerName: name,
         items: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
       });
 
@@ -42,7 +49,7 @@ export function WhatsappCheckout({
 
       const link = whatsappLink(
         whatsapp,
-        buildCartMessage(items, storeName, result.orderNumber),
+        buildCartMessage(items, storeName, result.orderNumber, name.trim()),
       );
       // Navega antes de limpar: `clear()` primeiro re-renderiza a tela como
       // "carrinho vazio" no instante que antecede a saída da página.
@@ -114,13 +121,34 @@ export function WhatsappCheckout({
           <span className="text-2xl font-black text-white">{brl(total)}</span>
         </div>
 
+        <div className="mt-5">
+          <label className="label" htmlFor="customer-name">
+            Seu nome
+          </label>
+          <input
+            id="customer-name"
+            className="field"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Como podemos te chamar?"
+            autoComplete="name"
+            enterKeyHint="send"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                submit();
+              }
+            }}
+          />
+        </div>
+
         <Button
           type="button"
           onClick={submit}
           disabled={pending}
           variant="whatsapp"
           size="lg"
-          className="mt-5 w-full"
+          className="mt-3 w-full"
         >
           {pending ? <Loader2 size={18} className="animate-spin" /> : <MessageCircle size={18} />}
           {pending ? "Registrando pedido…" : "Enviar pedido no WhatsApp"}

@@ -25,6 +25,30 @@ export async function updateOrderStatusAction(
   return { ok: true };
 }
 
+/**
+ * Ajusta o valor final do pedido na hora de confirmar — desconto combinado no
+ * WhatsApp, troco, taxa extra. Mexe só no `totalCents`: o `subtotalCents`
+ * continua sendo a soma dos itens, e é a diferença entre os dois que o painel
+ * mostra como ajuste. O faturamento lê `totalCents`, então o número novo é o
+ * que conta no dashboard.
+ */
+export async function updateOrderTotalAction(
+  orderId: string,
+  totalCents: number,
+): Promise<ActionResult> {
+  await requireAdmin();
+  if (!Number.isInteger(totalCents) || totalCents < 0) {
+    return { ok: false, error: "Valor inválido" };
+  }
+
+  await db.order.update({ where: { id: orderId }, data: { totalCents } });
+
+  revalidatePath("/admin/pedidos");
+  revalidatePath(`/admin/pedidos/${orderId}`);
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
 export async function updateOrderNotesAction(orderId: string, notes: string): Promise<ActionResult> {
   await requireAdmin();
   await db.order.update({ where: { id: orderId }, data: { notes: notes.trim() || null } });

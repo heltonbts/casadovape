@@ -18,6 +18,8 @@ export default async function ProdutosPage(props: PageProps<"/produtos">) {
     ordem: one(sp.ordem) as Filters["ordem"],
     disponivel: one(sp.disponivel) === "1",
     page: Number(one(sp.page) ?? 1) || 1,
+    // Catálogo pequeno: cabe tudo numa página só, sem paginar à toa.
+    perPage: 24,
   };
 
   const [{ items, total, page, pages }, categories, brands] = await Promise.all([
@@ -70,7 +72,7 @@ export default async function ProdutosPage(props: PageProps<"/produtos">) {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
                 {items.map((p, i) => (
                   <ProductCard key={p.id} product={p} priority={i < 3} />
                 ))}
