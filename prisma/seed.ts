@@ -368,8 +368,8 @@ async function main() {
   await db.banner.createMany({
     data: [
       {
-        title: "Pods descartáveis com até 20.000 puffs",
-        subtitle: "Frete grátis em Aracati e região. Pague no Pix e ganhe desconto.",
+        title: "Os melhores pods da região, com entrega rápida",
+        subtitle: "Pods, vapes e juices originais com frete grátis em Aracati e região. Pedido fechado no WhatsApp.",
         ctaLabel: "Ver coleção",
         linkUrl: "/produtos?categoria=pods-descartaveis",
         position: 1,

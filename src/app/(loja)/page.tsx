@@ -27,13 +27,13 @@ export default async function HomePage() {
           </span>
 
           <h1 className="mt-5 text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
-            {hero?.title ?? "Os melhores pods, na sua porta"}
+            {hero?.title ?? "Os melhores pods da região, com entrega rápida"}
           </h1>
 
           <p className="mt-4 max-w-xl text-base text-white/55 sm:text-lg">
             {hero?.subtitle ??
               settings.tagline ??
-              "Pods descartáveis, kits recarregáveis, juices e acessórios com pagamento no Pix e entrega rápida."}
+              "Pods, vapes e juices originais com frete grátis em Aracati e região. Pedido fechado no WhatsApp."}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
