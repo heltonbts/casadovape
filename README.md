@@ -78,8 +78,8 @@ formulário de nome, endereço ou pagamento — tudo se combina na conversa. Dua
 consequências que valem lembrar: nenhum pedido novo aparece em `/admin/pedidos`,
 e o estoque só muda pelos movimentos lançados à mão em `/admin/estoque`.
 
-**Frete grátis, sem região.** Não há cálculo de entrega em lugar nenhum: a loja
-anuncia frete grátis e a entrega é combinada no WhatsApp. Por isso as colunas
+**Frete grátis na cidade.** Não há cálculo de entrega em lugar nenhum: a loja
+anuncia frete grátis na cidade e o resto se combina no WhatsApp. Por isso as colunas
 `freeShippingMinCents` / `flatShippingCents` continuam no banco mas não são
 lidas nem editáveis no painel.
 

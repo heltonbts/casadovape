@@ -104,6 +104,6 @@ export function buildCartMessage(items: CartLine[], storeName: string) {
     }),
     "",
     `*Total: ${brl(total)}*`,
-    "Entrega grátis.",
+    "Entrega grátis na cidade.",
   ].join("\n");
 }

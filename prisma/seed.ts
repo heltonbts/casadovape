@@ -300,7 +300,7 @@ async function main() {
       email: "contato@casadovape.com.br",
       pixKey: "contato@casadovape.com.br",
       pixHolder: "Casa do Vape LTDA",
-      announcement: "Frete grátis em todos os pedidos · Pedido fechado no WhatsApp",
+      announcement: "Frete grátis na cidade · Pedido fechado no WhatsApp",
       ageGateEnabled: true,
       legalNotice:
         "Venda proibida para menores de 18 anos. Produtos contêm nicotina, substância que causa dependência.",
@@ -369,7 +369,7 @@ async function main() {
     data: [
       {
         title: "Pods descartáveis com até 20.000 puffs",
-        subtitle: "Frete grátis em todos os pedidos. Pague no Pix e ganhe desconto.",
+        subtitle: "Frete grátis na cidade. Pague no Pix e ganhe desconto.",
         ctaLabel: "Ver coleção",
         linkUrl: "/produtos?categoria=pods-descartaveis",
         position: 1,
