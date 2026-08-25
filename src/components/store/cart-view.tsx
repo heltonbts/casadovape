@@ -107,7 +107,7 @@ export function CartView() {
             </div>
             <div className="flex justify-between">
               <dt className="text-white/50">Entrega</dt>
-              <dd className="text-emerald-300">Grátis na cidade</dd>
+              <dd className="text-emerald-300">Grátis em Aracati</dd>
             </div>
           </dl>
 

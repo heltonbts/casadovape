@@ -47,7 +47,7 @@ export default async function HomePage() {
 
           <dl className="mt-10 grid max-w-lg grid-cols-3 gap-4 border-t border-white/8 pt-6">
             {[
-              { icon: Truck, label: "Entrega", value: "Grátis na cidade" },
+              { icon: Truck, label: "Entrega", value: "Aracati e região" },
               { icon: BadgeCheck, label: "Produtos", value: "Originais" },
               { icon: Zap, label: "Pagamento", value: "Pix na hora" },
             ].map(({ icon: Icon, label, value }) => (
@@ -119,7 +119,7 @@ export default async function HomePage() {
       <section className="my-8">
         <div className="surface flex flex-col items-center gap-3 bg-gradient-to-r from-brand-600/20 to-accent-500/10 p-8 text-center">
           <Truck className="text-accent-300" />
-          <h2 className="text-xl font-bold text-white">Frete grátis na cidade</h2>
+          <h2 className="text-xl font-bold text-white">Frete grátis em Aracati e região</h2>
           <p className="text-sm text-white/50">
             Sem valor mínimo. É só fechar o pedido pelo WhatsApp.
           </p>

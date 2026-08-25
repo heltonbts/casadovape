@@ -79,7 +79,7 @@ export function SiteFooter({
           <p className="mt-3 text-sm text-white/50">
             Pix, dinheiro ou cartão na entrega. O pedido é confirmado pelo WhatsApp.
           </p>
-          <p className="mt-3 text-sm text-accent-300">Frete grátis na cidade</p>
+          <p className="mt-3 text-sm text-accent-300">Frete grátis em Aracati e região</p>
         </div>
       </div>
 

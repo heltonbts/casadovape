@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState, PageHeader, TableWrap, Td, Th } from "@/components/admin/ui";
+import { OrderRowActions } from "@/components/admin/order-row-actions";
 import { db } from "@/lib/db";
 import { ORDER_STATUS, ORDER_STATUS_ORDER } from "@/lib/order-labels";
 import { brl, cn, formatDate, formatPhone } from "@/lib/utils";
@@ -30,7 +31,10 @@ export default async function PedidosPage(props: PageProps<"/admin/pedidos">) {
 
   return (
     <>
-      <PageHeader title="Pedidos" description="Confirme pagamentos e acompanhe as entregas." />
+      <PageHeader
+        title="Pedidos"
+        description="Cada pedido nasce aguardando. Finalizar baixa o estoque e entra no faturamento; cancelar devolve."
+      />
 
       <div className="no-scrollbar mb-4 flex gap-2 overflow-x-auto">
         <FilterChip href="/admin/pedidos" active={!status} label="Todos" count={totalAll} />
@@ -55,10 +59,10 @@ export default async function PedidosPage(props: PageProps<"/admin/pedidos">) {
           <thead>
             <tr>
               <Th>Pedido</Th>
-              <Th>Cliente</Th>
-              <Th>Entrega</Th>
+              <Th>Itens</Th>
               <Th>Status</Th>
               <Th className="text-right">Total</Th>
+              <Th className="text-right">Ações</Th>
             </tr>
           </thead>
           <tbody>
@@ -76,23 +80,24 @@ export default async function PedidosPage(props: PageProps<"/admin/pedidos">) {
                     <span className="block text-xs text-white/35">{formatDate(order.createdAt)}</span>
                   </Td>
                   <Td>
-                    <span className="block truncate">{order.customerName}</span>
-                    <span className="text-xs text-white/35">{formatPhone(order.customerPhone)}</span>
-                  </Td>
-                  <Td>
                     <span className="text-xs text-white/60">
-                      {order.deliveryMethod === "PICKUP"
-                        ? "Retirada"
-                        : `${order.addressCity ?? "—"}${order.addressState ? `/${order.addressState}` : ""}`}
+                      {order.items.reduce((sum, i) => sum + i.quantity, 0)} itens
                     </span>
                     <span className="block text-xs text-white/35">
-                      {order.items.reduce((sum, i) => sum + i.quantity, 0)} itens
+                      {order.customerPhone ? formatPhone(order.customerPhone) : "cliente pelo WhatsApp"}
                     </span>
                   </Td>
                   <Td>
                     <Badge tone={s.tone}>{s.label}</Badge>
                   </Td>
                   <Td className="text-right font-semibold text-white">{brl(order.totalCents)}</Td>
+                  <Td>
+                    <OrderRowActions
+                      orderId={order.id}
+                      orderNumber={order.number}
+                      status={order.status}
+                    />
+                  </Td>
                 </tr>
               );
             })}

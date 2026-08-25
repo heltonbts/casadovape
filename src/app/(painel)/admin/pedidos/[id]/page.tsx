@@ -131,21 +131,30 @@ export default async function PedidoAdminPage(props: PageProps<"/admin/pedidos/[
           <section className="surface p-5">
             <h2 className="mb-3 font-bold text-white">Cliente</h2>
             <p className="text-sm text-white">{order.customerName}</p>
-            <p className="mt-0.5 text-sm text-white/50">{formatPhone(order.customerPhone)}</p>
+            {order.customerPhone ? (
+              <p className="mt-0.5 text-sm text-white/50">{formatPhone(order.customerPhone)}</p>
+            ) : (
+              <p className="mt-0.5 text-sm text-white/45">
+                O pedido veio do site sem cadastro. O cliente se identifica na conversa do
+                WhatsApp — é só procurar a mensagem com <strong>#{order.number}</strong>.
+              </p>
+            )}
             {order.customerEmail && (
               <p className="mt-0.5 text-sm text-white/50">{order.customerEmail}</p>
             )}
 
             <div className="mt-4 flex flex-wrap gap-2">
-              <ButtonLink
-                href={whatsappLink(order.customerPhone, customerMessage)}
-                target="_blank"
-                rel="noopener noreferrer"
-                variant="whatsapp"
-                size="sm"
-              >
-                <MessageCircle size={14} /> Falar com o cliente
-              </ButtonLink>
+              {order.customerPhone && (
+                <ButtonLink
+                  href={whatsappLink(order.customerPhone, customerMessage)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="whatsapp"
+                  size="sm"
+                >
+                  <MessageCircle size={14} /> Falar com o cliente
+                </ButtonLink>
+              )}
               <CopyButton
                 value={buildOrderMessage(order, settings.storeName)}
                 label="Copiar resumo"
@@ -153,18 +162,20 @@ export default async function PedidoAdminPage(props: PageProps<"/admin/pedidos/[
             </div>
           </section>
 
-          <section className="surface p-5">
-            <h2 className="mb-3 font-bold text-white">
-              {order.deliveryMethod === "PICKUP" ? "Retirada" : "Entrega"}
-            </h2>
-            <p className="whitespace-pre-line text-sm text-white/65">{formatAddress(order)}</p>
-            {order.deliveryMethod === "DELIVERY" && order.addressStreet && (
-              <CopyButton
-                value={formatAddress(order).replace(/\n/g, ", ")}
-                label="Copiar endereço"
-              />
-            )}
-          </section>
+          {(order.deliveryMethod === "PICKUP" || order.addressStreet) && (
+            <section className="surface p-5">
+              <h2 className="mb-3 font-bold text-white">
+                {order.deliveryMethod === "PICKUP" ? "Retirada" : "Entrega"}
+              </h2>
+              <p className="whitespace-pre-line text-sm text-white/65">{formatAddress(order)}</p>
+              {order.deliveryMethod === "DELIVERY" && order.addressStreet && (
+                <CopyButton
+                  value={formatAddress(order).replace(/\n/g, ", ")}
+                  label="Copiar endereço"
+                />
+              )}
+            </section>
+          )}
 
           {order.notes && (
             <section className="surface p-5">

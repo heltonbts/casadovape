@@ -12,9 +12,39 @@ const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.
 
 async function main() {
   const user = await db.adminUser.findFirstOrThrow();
-  const order = await db.order.findFirstOrThrow({ include: { items: true } });
-  const variantId = order.items[0].variantId!;
-  const qty = order.items[0].quantity;
+  // O teste cria o próprio pedido, do jeito que a loja cria: PENDING e sem
+  // cadastro do cliente. Depender de um pedido que já esteja no banco tornava
+  // o teste refém do estado dele (produto excluído zera `variantId`).
+  const seedVariant = await db.productVariant.findFirstOrThrow({
+    where: { active: true, stock: { gt: 0 }, product: { active: true } },
+    include: { product: { select: { id: true, name: true, priceCents: true } } },
+  });
+  const qty = Math.min(2, seedVariant.stock);
+  const unitCents = seedVariant.priceCents ?? seedVariant.product.priceCents;
+
+  const order = await db.order.create({
+    data: {
+      customerName: "Cliente do WhatsApp",
+      customerPhone: "",
+      subtotalCents: unitCents * qty,
+      totalCents: unitCents * qty,
+      items: {
+        create: [
+          {
+            productId: seedVariant.product.id,
+            variantId: seedVariant.id,
+            productName: seedVariant.product.name,
+            variantName: seedVariant.name,
+            unitCents,
+            quantity: qty,
+            totalCents: unitCents * qty,
+          },
+        ],
+      },
+    },
+    include: { items: true },
+  });
+  const variantId = seedVariant.id;
 
   const stockOf = async () =>
     (await db.productVariant.findUniqueOrThrow({ where: { id: variantId } })).stock;
@@ -46,7 +76,8 @@ async function main() {
   const afterCancelAgain = await stockOf();
   console.log(`CANCEL 2x → estoque ${afterCancelAgain} (não pode mudar) ${afterCancelAgain === before ? "✔" : "✖"}`);
 
-  // Volta o pedido para PENDING para não deixar lixo de teste.
+  // O pedido do teste sai do banco no fim; volta a PENDING antes para que o
+  // estorno de estoque já tenha acontecido.
   await setOrderStatus(order.id, "PENDING", user.id);
 
   // Delta em vez de total: o mesmo pedido acumula movimentos entre execuções.
@@ -74,6 +105,7 @@ async function main() {
   const stillSame = await stockOf();
   console.log(`saldo após falha: ${stillSame} (esperado ${before}) ${stillSame === before ? "✔" : "✖"}`);
   await db.order.delete({ where: { id: big.id } });
+  await db.order.delete({ where: { id: order.id } });
 }
 
 main().catch((e) => { console.error(e); process.exit(1); }).finally(() => db.$disconnect());

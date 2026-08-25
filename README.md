@@ -71,15 +71,23 @@ WhatsApp. Ao marcar `PAID`/`SHIPPED`/`DELIVERED`, o estoque é debitado;
 ao cancelar, é devolvido. A flag `Order.stockApplied` garante que isso
 aconteça exatamente uma vez, mesmo com cliques repetidos.
 
-**A venda fecha no WhatsApp, não no site.** O carrinho existe, mas o botão
-final não grava pedido: monta a mensagem com os itens (`buildCartMessage()`,
-`src/lib/order-message.ts`) e abre o WhatsApp da loja com o texto pronto. Não há
-formulário de nome, endereço ou pagamento — tudo se combina na conversa. Duas
-consequências que valem lembrar: nenhum pedido novo aparece em `/admin/pedidos`,
-e o estoque só muda pelos movimentos lançados à mão em `/admin/estoque`.
+**A venda fecha no WhatsApp, mas o pedido nasce no site.** Não há formulário de
+nome, endereço ou pagamento — isso se combina na conversa. O clique em "Enviar
+pedido" grava o pedido como `PENDING` (`createWhatsappOrder()`,
+`src/app/actions/checkout.ts`) e só então manda o cliente para o WhatsApp com a
+mensagem pronta, já com o número do pedido: é ele que amarra o papo à linha em
+`/admin/pedidos`. Como o cliente não se cadastra, o pedido entra sem telefone e
+o painel diz isso na cara em vez de mostrar campo vazio.
 
-**Frete grátis na cidade.** Não há cálculo de entrega em lugar nenhum: a loja
-anuncia frete grátis na cidade e o resto se combina no WhatsApp. Por isso as colunas
+**Só o painel move estoque e faturamento.** O pedido nasce sem tocar no estoque
+— o cliente pode nunca enviar a mensagem. Finalizar (`DELIVERED`) debita o
+estoque e faz o pedido contar no faturamento; cancelar devolve o que já tinha
+saído. A flag `Order.stockApplied` garante que isso aconteça uma vez só. Os
+atalhos ficam na própria listagem (`OrderRowActions`); o fluxo completo de
+status continua na página do pedido.
+
+**Frete grátis em Aracati e região.** Não há cálculo de entrega em lugar nenhum:
+a loja anuncia frete grátis e o resto se combina no WhatsApp. Por isso as colunas
 `freeShippingMinCents` / `flatShippingCents` continuam no banco mas não são
 lidas nem editáveis no painel.
 

@@ -84,15 +84,16 @@ export type CartLine = {
 };
 
 /**
- * Mensagem montada direto do carrinho, sem pedido gravado no banco: quem
- * fecha a venda é a conversa no WhatsApp. Por isso não há número de pedido,
- * endereço nem forma de pagamento aqui — tudo isso se combina no papo.
+ * Mensagem montada a partir do carrinho. O pedido já existe no banco quando
+ * ela é gerada, então o número vai no texto: é por ele que o lojista acha a
+ * linha em /admin/pedidos. Endereço e pagamento ficam de fora — isso se
+ * combina no papo.
  */
-export function buildCartMessage(items: CartLine[], storeName: string) {
+export function buildCartMessage(items: CartLine[], storeName: string, orderNumber: number) {
   const total = items.reduce((sum, i) => sum + i.unitCents * i.quantity, 0);
 
   return [
-    `Olá! Quero fazer um pedido na ${storeName}.`,
+    `Olá! Acabei de fazer o pedido *#${orderNumber}* no site da ${storeName}.`,
     "",
     "*Itens*",
     ...items.map((i) => {
@@ -104,6 +105,6 @@ export function buildCartMessage(items: CartLine[], storeName: string) {
     }),
     "",
     `*Total: ${brl(total)}*`,
-    "Entrega grátis na cidade.",
+    "Entrega grátis em Aracati e região.",
   ].join("\n");
 }

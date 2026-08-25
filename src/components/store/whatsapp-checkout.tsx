@@ -1,17 +1,22 @@
 "use client";
 
+import { useTransition } from "react";
 import Link from "next/link";
-import { MessageCircle, ShoppingBag } from "lucide-react";
-import { ButtonLink } from "@/components/ui/button";
+import { Loader2, MessageCircle, ShoppingBag } from "lucide-react";
+import { toast } from "sonner";
+import { Button, ButtonLink } from "@/components/ui/button";
+import { createWhatsappOrder } from "@/app/actions/checkout";
 import { cartSubtotal, useCart } from "@/lib/cart";
 import { buildCartMessage } from "@/lib/order-message";
 import { brl, whatsappLink } from "@/lib/utils";
 
 /**
- * Última etapa da compra: em vez de formulário e pedido no banco, monta a
- * mensagem com os itens do carrinho e entrega a conversa para o WhatsApp da
- * loja. O carrinho NÃO é limpo no clique — se o WhatsApp não abrir, o cliente
- * perderia tudo sem ter enviado nada.
+ * Última etapa da compra. O clique grava o pedido (PENDING, sem cadastro) e
+ * só então manda o cliente para o WhatsApp com a mensagem pronta, já com o
+ * número do pedido — é assim que a conversa e a linha do painel se encontram.
+ *
+ * A ida é `location.href`, e não `window.open`: depois do `await` do Server
+ * Action o navegador trata a abertura de aba como pop-up e bloqueia.
  */
 export function WhatsappCheckout({
   whatsapp,
@@ -20,8 +25,31 @@ export function WhatsappCheckout({
   whatsapp: string;
   storeName: string;
 }) {
-  const { items, hydrated } = useCart();
+  const { items, hydrated, clear } = useCart();
+  const [pending, startTransition] = useTransition();
   const total = cartSubtotal(items);
+
+  function submit() {
+    startTransition(async () => {
+      const result = await createWhatsappOrder({
+        items: items.map((i) => ({ variantId: i.variantId, quantity: i.quantity })),
+      });
+
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+
+      const link = whatsappLink(
+        whatsapp,
+        buildCartMessage(items, storeName, result.orderNumber),
+      );
+      // Navega antes de limpar: `clear()` primeiro re-renderiza a tela como
+      // "carrinho vazio" no instante que antecede a saída da página.
+      window.location.href = link;
+      clear();
+    });
+  }
 
   if (!hydrated) {
     return (
@@ -48,14 +76,12 @@ export function WhatsappCheckout({
     );
   }
 
-  const link = whatsappLink(whatsapp, buildCartMessage(items, storeName));
-
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <h1 className="mb-2 text-3xl font-black tracking-tight text-white">Finalizar pedido</h1>
       <p className="mb-6 text-sm text-white/50">
-        Confira os itens abaixo. Ao continuar, abrimos o WhatsApp da loja com a mensagem do seu
-        pedido já escrita — é só enviar. A entrega e o pagamento a gente combina na conversa.
+        Confira os itens abaixo. Ao continuar, registramos seu pedido e abrimos o WhatsApp da loja
+        com a mensagem já escrita — é só enviar. A entrega e o pagamento a gente combina na conversa.
       </p>
 
       <section className="surface p-5">
@@ -81,24 +107,24 @@ export function WhatsappCheckout({
 
         <div className="flex items-center justify-between text-sm">
           <span className="text-white/50">Entrega</span>
-          <span className="font-medium text-emerald-300">Grátis na cidade</span>
+          <span className="font-medium text-emerald-300">Grátis em Aracati e região</span>
         </div>
         <div className="mt-3 flex items-end justify-between">
           <span className="text-sm text-white/50">Total</span>
           <span className="text-2xl font-black text-white">{brl(total)}</span>
         </div>
 
-        <ButtonLink
-          href={link}
-          target="_blank"
-          rel="noopener noreferrer"
+        <Button
+          type="button"
+          onClick={submit}
+          disabled={pending}
           variant="whatsapp"
           size="lg"
           className="mt-5 w-full"
         >
-          <MessageCircle size={18} />
-          Enviar pedido no WhatsApp
-        </ButtonLink>
+          {pending ? <Loader2 size={18} className="animate-spin" /> : <MessageCircle size={18} />}
+          {pending ? "Registrando pedido…" : "Enviar pedido no WhatsApp"}
+        </Button>
 
         <Link
           href="/carrinho"
