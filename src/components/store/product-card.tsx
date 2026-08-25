@@ -36,7 +36,8 @@ export function ProductCard({ product, priority }: { product: ProductCardData; p
         )}
         {!soldOut && stock <= 5 && (
           <div className="absolute bottom-2 left-2">
-            <Badge tone="warning">Últimas {stock} un.</Badge>
+            {/* Sem número: o saldo é informação do painel, não da vitrine. */}
+            <Badge tone="warning">Últimas unidades</Badge>
           </div>
         )}
       </div>

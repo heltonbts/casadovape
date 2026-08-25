@@ -136,9 +136,7 @@ export function AddToCart({
       ) : (
         <>
           {variant.stock <= 5 && (
-            <p className="text-sm text-amber-300">
-              Restam apenas {variant.stock} unidades de {variant.name}.
-            </p>
+            <p className="text-sm text-amber-300">Últimas unidades de {variant.name}.</p>
           )}
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button size="lg" className="flex-1" onClick={() => handleAdd(true)}>

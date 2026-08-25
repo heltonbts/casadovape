@@ -33,7 +33,7 @@ export default async function HomePage() {
           <p className="mt-4 max-w-xl text-base text-white/55 sm:text-lg">
             {hero?.subtitle ??
               settings.tagline ??
-              "Pods, vapes e juices originais com frete grátis em Aracati e região. Pedido fechado no WhatsApp."}
+              "Pods e vapes originais com frete grátis em Aracati e região. Pedido fechado no WhatsApp."}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">

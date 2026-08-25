@@ -369,7 +369,7 @@ async function main() {
     data: [
       {
         title: "Os melhores pods da região, com entrega rápida",
-        subtitle: "Pods, vapes e juices originais com frete grátis em Aracati e região. Pedido fechado no WhatsApp.",
+        subtitle: "Pods e vapes originais com frete grátis em Aracati e região. Pedido fechado no WhatsApp.",
         ctaLabel: "Ver coleção",
         linkUrl: "/produtos?categoria=pods-descartaveis",
         position: 1,
