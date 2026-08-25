@@ -1,26 +1,93 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ---------------------------------------------------------------- tema
+   Paleta inspirada na referência: violeta como cor da marca, ciano como
+   destaque, sobre um fundo escuro quase preto com leve tom roxo.
+   A loja é dark-only por decisão de design (vitrine de vape à noite). */
+
+@theme {
+  --color-ink-950: #08060f;
+  --color-ink-900: #0d0918;
+  --color-ink-850: #120c20;
+  --color-ink-800: #181128;
+  --color-ink-700: #241a3a;
+  --color-ink-600: #362a52;
+
+  --color-brand-50: #f5f0ff;
+  --color-brand-200: #d6bcfe;
+  --color-brand-400: #a855f7;
+  --color-brand-500: #9333ea;
+  --color-brand-600: #7c22ce;
+  --color-brand-700: #6620a8;
+
+  --color-accent-300: #67e8f9;
+  --color-accent-400: #22d3ee;
+  --color-accent-500: #06b6d4;
+
+  --font-sans: var(--font-sans-custom), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 1.25rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    color-scheme: dark;
+    scrollbar-gutter: stable;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background-color: var(--color-ink-950);
+    color: #ece8f5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Halo violeta/ciano fixo no topo, dá profundidade sem custo de imagem. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -20% -10% auto -10%;
+    height: 60vh;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(50% 60% at 20% 0%, rgba(147, 51, 234, 0.28), transparent 70%),
+      radial-gradient(45% 55% at 85% 5%, rgba(34, 211, 238, 0.16), transparent 70%);
+  }
+
+  ::selection {
+    background: var(--color-brand-500);
+    color: white;
+  }
+
+  /* Tira as setinhas dos inputs numéricos do admin. */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .surface {
+    @apply rounded-card border border-white/8 bg-ink-900/70 backdrop-blur-sm;
+  }
+
+  .field {
+    @apply w-full rounded-xl border border-white/10 bg-ink-850 px-3.5 py-2.5 text-sm text-white
+           placeholder:text-white/35 outline-none transition
+           focus:border-brand-400 focus:ring-2 focus:ring-brand-500/30
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .label {
+    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-white/50;
+  }
+}
+
+/* Esconde a barra de rolagem em carrosséis horizontais. */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
 }
