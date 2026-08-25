@@ -40,9 +40,12 @@ no `.env` — **troque a senha antes de publicar**.
 redimensiona a imagem no cliente (`src/lib/image-webp.ts`, máx. 1600 px de lado,
 qualidade 0.82) e só então envia para `POST /api/admin/upload`, que guarda no
 Vercel Blob. Converter antes de subir deixa uma foto de celular em ~200 KB, então
-o upload é rápido e nunca esbarra no limite de 4,5 MB de corpo da função. O
-`BLOB_READ_WRITE_TOKEN` vem de *Vercel > Storage > Blob* (ou `vercel env pull`);
-sem ele o upload responde 500 e o campo de URL manual continua valendo.
+o upload é rápido e nunca esbarra no limite de 4,5 MB de corpo da função. A rota
+autentica no Blob com `BLOB_READ_WRITE_TOKEN` (aba *.env.local* do store) ou,
+na falta dele, com o id do store somado ao `VERCEL_OIDC_TOKEN` que a Vercel
+injeta em runtime — aceitando também os nomes prefixados que a integração cria
+(`BLOB_READ_WRITE_TOKEN_STORE_ID`). Em dev local só o token serve; sem nenhum
+dos dois o upload responde 500 e o campo de URL manual continua valendo.
 
 **Dinheiro em centavos.** Todo valor monetário é `Int` em centavos
 (`priceCents`, `totalCents`…). Evita erro de ponto flutuante e o atrito de

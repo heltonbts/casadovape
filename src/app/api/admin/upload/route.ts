@@ -18,6 +18,25 @@ const EXTENSIONS: Record<string, string> = {
 /** Pastas do store. Evita que o cliente escreva em qualquer caminho. */
 const FOLDERS = new Set(["produtos", "banners", "categorias"]);
 
+/**
+ * O Blob aceita dois jeitos de autenticar e a integração da Vercel pode ter
+ * criado qualquer um deles, com nome dependente do prefixo escolhido ao
+ * conectar o store: um token de leitura/escrita, ou o id do store somado ao
+ * `VERCEL_OIDC_TOKEN` que a Vercel injeta em runtime. Resolvemos os dois.
+ */
+function blobAuth(): { token: string } | { storeId: string } | null {
+  const token =
+    process.env.BLOB_READ_WRITE_TOKEN ||
+    process.env.BLOB_READ_WRITE_TOKEN_READ_WRITE_TOKEN;
+  if (token) return { token };
+
+  const storeId =
+    process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN_STORE_ID;
+  if (storeId) return { storeId };
+
+  return null;
+}
+
 function fail(error: string, status: number) {
   return Response.json({ error }, { status });
 }
@@ -26,8 +45,12 @@ export async function POST(request: Request) {
   const session = await getSession();
   if (!session) return fail("Sessão expirada. Entre novamente.", 401);
 
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    return fail("BLOB_READ_WRITE_TOKEN não configurado no ambiente.", 500);
+  const auth = blobAuth();
+  if (!auth) {
+    return fail(
+      "Vercel Blob não configurado: falta BLOB_READ_WRITE_TOKEN (ou BLOB_STORE_ID) no ambiente.",
+      500,
+    );
   }
 
   const form = await request.formData();
@@ -45,6 +68,7 @@ export async function POST(request: Request) {
 
   try {
     const blob = await put(`${folder}/${base}.${extension}`, file, {
+      ...auth,
       access: "public",
       // Nomes iguais ("foto.webp") são a regra vinda do celular, então o
       // sufixo aleatório evita colisão sem sobrescrever nada.
