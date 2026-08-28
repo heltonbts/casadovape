@@ -114,7 +114,7 @@ export function WhatsappCheckout({
 
         <div className="flex items-center justify-between text-sm">
           <span className="text-white/50">Entrega</span>
-          <span className="font-medium text-emerald-300">Grátis em Aracati e região</span>
+          <span className="font-medium text-emerald-300">Grátis em Aracati</span>
         </div>
         <div className="mt-3 flex items-end justify-between">
           <span className="text-sm text-white/50">Total</span>

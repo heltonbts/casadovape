@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { STORE_UTC_OFFSET } from "@/lib/utils";
 
 export type CrudResult = { ok: true } | { ok: false; error: string };
 
@@ -42,7 +43,7 @@ export async function saveCouponAction(input: z.input<typeof couponSchema>): Pro
   const data = {
     ...rest,
     code: code.toUpperCase(),
-    expiresAt: expiresAt ? new Date(`${expiresAt}T23:59:59`) : null,
+    expiresAt: expiresAt ? new Date(`${expiresAt}T23:59:59${STORE_UTC_OFFSET}`) : null,
   };
 
   try {

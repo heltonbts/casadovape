@@ -52,8 +52,38 @@ export function formatZip(value: string) {
   return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
 }
 
+/**
+ * A loja fica em Aracati/CE: UTC-3 o ano inteiro (o Brasil não tem mais horário
+ * de verão). O servidor roda em UTC, então toda data mostrada ou comparada
+ * precisa passar por aqui — senão o painel mostra o pedido três horas à frente.
+ */
+export const STORE_TIME_ZONE = "America/Fortaleza";
+export const STORE_UTC_OFFSET = "-03:00";
+
 export function formatDate(date: Date) {
-  return date.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+  return date.toLocaleString("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+    timeZone: STORE_TIME_ZONE,
+  });
+}
+
+/** Só o dia, no fuso da loja. */
+export function formatDay(date: Date) {
+  return date.toLocaleDateString("pt-BR", { timeZone: STORE_TIME_ZONE });
+}
+
+/** "2026-08-28" no fuso da loja — formato que o <input type="date"> espera. */
+export function toDateInput(date: Date) {
+  return date.toLocaleDateString("en-CA", { timeZone: STORE_TIME_ZONE });
+}
+
+/** Meia-noite de hoje em Aracati, como instante real (para filtrar no banco). */
+export function startOfStoreToday(now: Date = new Date()) {
+  const offsetMs = 3 * 60 * 60 * 1000;
+  const local = new Date(now.getTime() - offsetMs);
+  local.setUTCHours(0, 0, 0, 0);
+  return new Date(local.getTime() + offsetMs);
 }
 
 /**

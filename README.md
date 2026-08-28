@@ -91,7 +91,7 @@ saído. A flag `Order.stockApplied` garante que isso aconteça uma vez só. Os
 atalhos ficam na própria listagem (`OrderRowActions`); o fluxo completo de
 status continua na página do pedido.
 
-**Frete grátis em Aracati e região.** Não há cálculo de entrega em lugar nenhum:
+**Frete grátis em Aracati.** Não há cálculo de entrega em lugar nenhum:
 a loja anuncia frete grátis e o resto se combina no WhatsApp. Por isso as colunas
 `freeShippingMinCents` / `flatShippingCents` continuam no banco mas não são
 lidas nem editáveis no painel.

@@ -70,7 +70,7 @@ export function SettingsForm({ initial }: { initial: SettingsFormData }) {
             label="Faixa de aviso no topo"
             value={form.announcement}
             onChange={(v) => set("announcement", v)}
-            placeholder="Frete grátis em Aracati e região"
+            placeholder="Frete grátis em Aracati"
           />
         </div>
       </section>

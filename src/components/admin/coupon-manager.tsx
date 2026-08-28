@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/admin/catalog-managers";
 import { deleteCouponAction, saveCouponAction } from "@/app/actions/admin/marketing";
-import { brl, fromCents, toCents } from "@/lib/utils";
+import { brl, formatDay, fromCents, toCents, toDateInput } from "@/lib/utils";
 
 export type CouponRow = {
   id: string;
@@ -47,7 +47,7 @@ export function CouponManager({ coupons }: { coupons: CouponRow[] }) {
       minSubtotal: coupon.minSubtotalCents ? fromCents(coupon.minSubtotalCents) : "",
       maxUses: coupon.maxUses?.toString() ?? "",
       active: coupon.active,
-      expiresAt: coupon.expiresAt?.slice(0, 10) ?? "",
+      expiresAt: coupon.expiresAt ? toDateInput(new Date(coupon.expiresAt)) : "",
     });
   }
 
@@ -107,7 +107,7 @@ export function CouponManager({ coupons }: { coupons: CouponRow[] }) {
                     : ""}
                   {coupon.uses} usos{coupon.maxUses ? ` de ${coupon.maxUses}` : ""}
                   {coupon.expiresAt
-                    ? ` · até ${new Date(coupon.expiresAt).toLocaleDateString("pt-BR")}`
+                    ? ` · até ${formatDay(new Date(coupon.expiresAt))}`
                     : ""}
                 </span>
               </span>

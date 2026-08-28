@@ -1,12 +1,13 @@
 import "server-only";
 import { db } from "@/lib/db";
+import { startOfStoreToday } from "@/lib/utils";
 import type { OrderStatus } from "@/generated/prisma/enums";
 
 const REVENUE_STATUSES: OrderStatus[] = ["PAID", "SHIPPED", "DELIVERED"];
 
 export async function getDashboardStats() {
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  // "Hoje" é o dia em Aracati (UTC-3), não o dia do servidor (UTC).
+  const startOfToday = startOfStoreToday();
   const start30 = new Date(startOfToday);
   start30.setDate(start30.getDate() - 29);
 

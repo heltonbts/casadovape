@@ -300,7 +300,7 @@ async function main() {
       email: "contato@casadovape.com.br",
       pixKey: "contato@casadovape.com.br",
       pixHolder: "Casa do Vape LTDA",
-      announcement: "Frete grátis em Aracati e região · Pedido fechado no WhatsApp",
+      announcement: "Frete grátis em Aracati · Pedido fechado no WhatsApp",
       ageGateEnabled: true,
       legalNotice:
         "Venda proibida para menores de 18 anos. Produtos contêm nicotina, substância que causa dependência.",
@@ -369,7 +369,7 @@ async function main() {
     data: [
       {
         title: "Os melhores pods da região, com entrega rápida",
-        subtitle: "Pods e vapes originais com frete grátis em Aracati e região. Pedido fechado no WhatsApp.",
+        subtitle: "Pods e vapes originais com frete grátis em Aracati. Pedido fechado no WhatsApp.",
         ctaLabel: "Ver coleção",
         linkUrl: "/produtos?categoria=pods-descartaveis",
         position: 1,

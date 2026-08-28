@@ -110,7 +110,7 @@ export function buildCartMessage(
     }),
     "",
     `*Total: ${brl(total)}*`,
-    "Entrega grátis em Aracati e região.",
+    "Entrega grátis em Aracati.",
     "",
     `Nome: ${customerName}`,
   ].join("\n");
