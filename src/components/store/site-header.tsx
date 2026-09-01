@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Menu, Search, ShoppingBag, X, Zap } from "lucide-react";
+import { Menu, Search, ShoppingBag, X } from "lucide-react";
 import { cartCount, useCart } from "@/lib/cart";
 import { cn } from "@/lib/utils";
 
@@ -52,10 +53,15 @@ export function SiteHeader({
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
 
-          <Link href="/" className="flex shrink-0 items-center gap-2">
-            <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 shadow-lg shadow-brand-600/30">
-              <Zap size={18} className="text-white" fill="currentColor" />
-            </span>
+          <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label={storeName}>
+            <Image
+              src="/logo.png"
+              alt=""
+              width={800}
+              height={773}
+              priority
+              className="h-10 w-auto"
+            />
             <span className="text-base font-black tracking-tight text-white sm:text-lg">
               {storeName}
             </span>

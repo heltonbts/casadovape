@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { AtSign, Mail, MapPin, MessageCircle, Zap } from "lucide-react";
+import { AtSign, Mail, MapPin, MessageCircle } from "lucide-react";
 import { whatsappLink } from "@/lib/utils";
 import type { Settings } from "@/lib/settings";
 
@@ -14,10 +15,8 @@ export function SiteFooter({
     <footer className="relative z-10 mt-20 border-t border-white/8 bg-ink-900/60">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-accent-500">
-              <Zap size={18} className="text-white" fill="currentColor" />
-            </span>
+          <div className="flex items-center gap-2.5">
+            <Image src="/logo.png" alt="" width={800} height={773} className="h-11 w-auto" />
             <span className="text-lg font-black text-white">{settings.storeName}</span>
           </div>
           {settings.tagline && <p className="mt-3 text-sm text-white/50">{settings.tagline}</p>}

@@ -1,10 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, Sparkles, Truck, Zap } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
 import { ProductCard } from "@/components/store/product-card";
 import { getAllProducts, getBanners, getCategories } from "@/lib/catalog";
 import { getSettings } from "@/lib/settings";
-import { brl } from "@/lib/utils";
 
 export default async function HomePage() {
   const [settings, banners, categories, products] = await Promise.all([
@@ -63,25 +63,14 @@ export default async function HomePage() {
           <div className="surface relative overflow-hidden p-8">
             <div className="absolute -right-16 -top-16 size-56 rounded-full bg-brand-500/25 blur-3xl" />
             <div className="absolute -bottom-16 -left-10 size-48 rounded-full bg-accent-500/20 blur-3xl" />
-            <div className="relative space-y-4">
-              {products.slice(0, 3).map((p, i) => (
-                <Link
-                  key={p.id}
-                  href={`/produto/${p.slug}`}
-                  className="flex items-center gap-4 rounded-2xl border border-white/8 bg-ink-850/80 p-3 transition hover:border-brand-400/40"
-                >
-                  <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-brand-500/30 to-accent-500/20 text-sm font-black text-white">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold text-white">{p.name}</span>
-                    <span className="text-xs text-white/45">{p.brand?.name}</span>
-                  </span>
-                  <span className="shrink-0 text-sm font-bold text-accent-300">{brl(p.priceCents)}</span>
-                </Link>
-              ))}
-              <p className="pt-1 text-center text-xs text-white/35">Mais vendidos da semana</p>
-            </div>
+            <Image
+              src="/logo.png"
+              alt={settings.storeName}
+              width={800}
+              height={773}
+              priority
+              className="relative mx-auto w-full max-w-sm drop-shadow-[0_18px_45px_rgba(124,34,206,0.45)]"
+            />
           </div>
         </div>
       </section>
@@ -107,7 +96,7 @@ export default async function HomePage() {
       {/* --------------------------------------------------------- catálogo */}
       <Section
         title="Todos os produtos"
-        subtitle={`${products.length} ${products.length === 1 ? "produto disponível" : "produtos disponíveis"} · destaques primeiro`}
+        subtitle={`${products.length} ${products.length === 1 ? "produto disponível" : "produtos disponíveis"}`}
         href="/produtos"
         linkLabel="Buscar e filtrar →"
       >
