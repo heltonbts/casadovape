@@ -57,6 +57,24 @@ export function getAllProducts(take = 60) {
   });
 }
 
+/**
+ * Produtos marcados como destaque no admin. Alimenta a aba /destaques — é a
+ * curadoria da loja, não um ranking de venda.
+ */
+export function getFeaturedProducts(take = 24) {
+  return db.product.findMany({
+    where: { active: true, featured: true },
+    select: PRODUCT_CARD_SELECT,
+    orderBy: { createdAt: "desc" },
+    take,
+  });
+}
+
+/** O header só mostra a aba de destaques quando existe algo lá dentro. */
+export const countFeaturedProducts = cache(() =>
+  db.product.count({ where: { active: true, featured: true } }),
+);
+
 export type ProductFilters = {
   q?: string;
   categoria?: string;

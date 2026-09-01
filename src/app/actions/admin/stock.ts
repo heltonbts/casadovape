@@ -24,6 +24,7 @@ export async function registerMovementAction(input: {
     revalidatePath("/admin/produtos");
     revalidatePath("/admin");
     revalidatePath("/produtos");
+    revalidatePath("/destaques");
     return { ok: true, balance };
   } catch (error) {
     return {

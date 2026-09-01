@@ -5,7 +5,16 @@ import "./globals.css";
 
 const sans = Geist({ variable: "--font-sans-custom", subsets: ["latin"] });
 
+/** Sem isso o Next resolve a imagem de open graph contra localhost e o preview
+ *  do link quebra no WhatsApp. Na Vercel a URL de produção vem do ambiente. */
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "http://localhost:3000");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: "Casa do Vape — Pods, vapes e e-liquids",
     template: "%s · Casa do Vape",

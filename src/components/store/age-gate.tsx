@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState, useSyncExternalStore } from "react";
-import { Zap } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 const KEY = "cdv-age-ok";
@@ -42,9 +42,13 @@ export function AgeGate({ storeName, notice }: { storeName: string; notice?: str
   return (
     <div className="fixed inset-0 z-100 grid place-items-center bg-ink-950/90 p-4 backdrop-blur-md">
       <div className="surface w-full max-w-md p-8 text-center">
-        <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-accent-500">
-          <Zap size={22} className="text-white" fill="currentColor" />
-        </span>
+        <Image
+          src="/logo.png"
+          alt={storeName}
+          width={800}
+          height={773}
+          className="mx-auto h-16 w-auto"
+        />
 
         {denied ? (
           <>

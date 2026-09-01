@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Menu, Search, ShoppingBag, X } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Menu, Search, ShoppingBag, Sparkles, X } from "lucide-react";
 import { cartCount, useCart } from "@/lib/cart";
 import { cn } from "@/lib/utils";
 
@@ -14,13 +14,16 @@ export function SiteHeader({
   storeName,
   announcement,
   categories,
+  showFeatured,
 }: {
   storeName: string;
   announcement?: string | null;
   categories: NavCategory[];
+  showFeatured: boolean;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const items = useCart((s) => s.items);
   const hydrated = useCart((s) => s.hydrated);
@@ -104,6 +107,19 @@ export function SiteHeader({
 
         {/* Categorias — rola horizontalmente no mobile */}
         <nav className="no-scrollbar hidden gap-1 overflow-x-auto border-t border-white/5 px-4 py-2 lg:flex lg:justify-center">
+          {showFeatured && (
+            <Link
+              href="/destaques"
+              className={cn(
+                "inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm transition hover:bg-white/5 hover:text-white",
+                pathname === "/destaques"
+                  ? "bg-brand-500/15 font-medium text-brand-200"
+                  : "text-white/60",
+              )}
+            >
+              <Sparkles size={14} /> Destaques
+            </Link>
+          )}
           {categories.map((c) => (
             <Link
               key={c.slug}
@@ -126,6 +142,18 @@ export function SiteHeader({
             <input name="q" placeholder="Buscar…" className="field pl-9" aria-label="Buscar produtos" />
           </form>
           <div className="flex flex-col">
+            {showFeatured && (
+              <Link
+                href="/destaques"
+                onClick={closeMenu}
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-lg px-2 py-2.5 font-medium",
+                  pathname === "/destaques" ? "text-brand-200" : "text-white",
+                )}
+              >
+                <Sparkles size={15} /> Destaques
+              </Link>
+            )}
             <Link
               href="/produtos"
               onClick={closeMenu}

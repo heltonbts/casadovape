@@ -161,6 +161,7 @@ export async function saveProductAction(input: ProductInput): Promise<SaveResult
     revalidatePath("/admin/produtos");
     revalidatePath("/admin/estoque");
     revalidatePath("/produtos");
+    revalidatePath("/destaques");
     revalidatePath(`/produto/${product.slug}`);
     revalidatePath("/");
     return { ok: true, id: product.id, slug: product.slug };
@@ -178,6 +179,7 @@ export async function toggleProductActiveAction(id: string, active: boolean) {
   await db.product.update({ where: { id }, data: { active } });
   revalidatePath("/admin/produtos");
   revalidatePath("/produtos");
+  revalidatePath("/destaques");
   revalidatePath("/");
   return { ok: true as const };
 }
@@ -190,6 +192,7 @@ export async function deleteProductAction(id: string) {
   await db.product.delete({ where: { id } });
   revalidatePath("/admin/produtos");
   revalidatePath("/produtos");
+  revalidatePath("/destaques");
   revalidatePath("/");
   return { ok: true as const };
 }
