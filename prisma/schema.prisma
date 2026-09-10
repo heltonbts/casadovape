@@ -90,9 +90,10 @@ model Product {
   brandId    String?
   brand      Brand?    @relation(fields: [brandId], references: [id], onDelete: SetNull)
 
-  images   ProductImage[]
-  variants ProductVariant[]
-  items    OrderItem[]
+  images      ProductImage[]
+  variants    ProductVariant[]
+  items       OrderItem[]
+  collections CollectionItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -137,6 +138,47 @@ model ProductVariant {
 
   @@unique([productId, name])
   @@index([productId, position])
+}
+
+// --------------------------------------------------------------- vitrines
+
+/// Lista montada à mão no painel ("Mais vendidos", "Chegou agora"). É a forma
+/// de a loja organizar a home sem depender de regra automática: quem escolhe
+/// os produtos e a ordem deles é o dono.
+model Collection {
+  id       String  @id @default(cuid())
+  name     String
+  slug     String  @unique
+  subtitle String?
+
+  /// Ordem das listas na home e no menu da loja. Menor aparece antes.
+  position Int     @default(0)
+  active   Boolean @default(true)
+  /// Desligada, a lista continua existindo na página própria mas sai da home.
+  showOnHome Boolean @default(true)
+
+  items CollectionItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, position])
+}
+
+/// A posição vive aqui, e não no produto: o mesmo produto pode ser o primeiro
+/// de uma lista e o último de outra.
+model CollectionItem {
+  id           String     @id @default(cuid())
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  position     Int        @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@unique([collectionId, productId])
+  @@index([collectionId, position])
 }
 
 // ---------------------------------------------------------------- estoque

@@ -162,6 +162,7 @@ export async function saveProductAction(input: ProductInput): Promise<SaveResult
     revalidatePath("/admin/estoque");
     revalidatePath("/produtos");
     revalidatePath("/destaques");
+    revalidatePath("/admin/destaques");
     revalidatePath(`/produto/${product.slug}`);
     revalidatePath("/");
     return { ok: true, id: product.id, slug: product.slug };
@@ -180,6 +181,23 @@ export async function toggleProductActiveAction(id: string, active: boolean) {
   revalidatePath("/admin/produtos");
   revalidatePath("/produtos");
   revalidatePath("/destaques");
+  revalidatePath("/admin/destaques");
+  revalidatePath("/");
+  return { ok: true as const };
+}
+
+/**
+ * Liga/desliga o destaque. Vive numa action própria porque a aba de destaques
+ * mexe só nisso — abrir o formulário inteiro do produto só para marcar uma
+ * caixa era o caminho longo.
+ */
+export async function toggleProductFeaturedAction(id: string, featured: boolean) {
+  await requireAdmin();
+  await db.product.update({ where: { id }, data: { featured } });
+  revalidatePath("/admin/destaques");
+  revalidatePath("/admin/produtos");
+  revalidatePath("/destaques");
+  revalidatePath("/produtos");
   revalidatePath("/");
   return { ok: true as const };
 }
@@ -193,6 +211,7 @@ export async function deleteProductAction(id: string) {
   revalidatePath("/admin/produtos");
   revalidatePath("/produtos");
   revalidatePath("/destaques");
+  revalidatePath("/admin/destaques");
   revalidatePath("/");
   return { ok: true as const };
 }

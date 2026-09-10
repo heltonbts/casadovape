@@ -2,14 +2,15 @@ import { Suspense } from "react";
 import { AgeGate } from "@/components/store/age-gate";
 import { SiteFooter } from "@/components/store/site-footer";
 import { SiteHeader } from "@/components/store/site-header";
-import { countFeaturedProducts, getCategories } from "@/lib/catalog";
+import { getCategories } from "@/lib/catalog";
+import { getNavCollections } from "@/lib/collections";
 import { getSettings } from "@/lib/settings";
 
 export default async function StoreLayout({ children }: LayoutProps<"/">) {
-  const [settings, categories, featuredCount] = await Promise.all([
+  const [settings, categories, collections] = await Promise.all([
     getSettings(),
     getCategories(),
-    countFeaturedProducts(),
+    getNavCollections(),
   ]);
   const nav = categories.map((c) => ({ name: c.name, slug: c.slug }));
 
@@ -22,7 +23,7 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
           storeName={settings.storeName}
           announcement={settings.announcement}
           categories={nav}
-          showFeatured={featuredCount > 0}
+          collections={collections}
         />
       </Suspense>
 

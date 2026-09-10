@@ -3,14 +3,16 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, Sparkles, Truck, Zap } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
 import { ProductCard } from "@/components/store/product-card";
-import { getAllProducts, getBanners, getCategories } from "@/lib/catalog";
+import { getAllProducts, getBanners, getCategories, type ProductCardData } from "@/lib/catalog";
+import { getHomeCollections } from "@/lib/collections";
 import { getSettings } from "@/lib/settings";
 
 export default async function HomePage() {
-  const [settings, banners, categories, products] = await Promise.all([
+  const [settings, banners, categories, collections, products] = await Promise.all([
     getSettings(),
     getBanners(),
     getCategories(),
+    getHomeCollections(),
     getAllProducts(),
   ]);
 
@@ -75,6 +77,25 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ----------------------------------------------- listas da loja
+          Vêm antes de tudo: é a vitrine que o dono montou à mão no painel,
+          na ordem que ele definiu lá. */}
+      {collections.map((collection, index) => (
+        <Section
+          key={collection.id}
+          title={collection.name}
+          subtitle={collection.subtitle ?? undefined}
+          href={`/lista/${collection.slug}`}
+          linkLabel={
+            collection.total > collection.products.length
+              ? `Ver os ${collection.total} →`
+              : "Ver a lista →"
+          }
+        >
+          <ProductGrid products={collection.products} priority={index === 0} />
+        </Section>
+      ))}
+
       {/* ------------------------------------------------------- categorias */}
       {categories.length > 1 && (
         <section className="py-8">
@@ -100,7 +121,7 @@ export default async function HomePage() {
         href="/produtos"
         linkLabel="Buscar e filtrar →"
       >
-        <ProductGrid products={products} priority />
+        <ProductGrid products={products} priority={collections.length === 0} />
       </Section>
 
       {/* ------------------------------------------------------------ frete */}
@@ -153,7 +174,7 @@ function ProductGrid({
   products,
   priority,
 }: {
-  products: Awaited<ReturnType<typeof getAllProducts>>;
+  products: ProductCardData[];
   priority?: boolean;
 }) {
   return (

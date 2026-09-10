@@ -44,36 +44,18 @@ export const getBanners = cache(() =>
 );
 
 /**
- * Catálogo inteiro, com os destaques na frente. A loja é pequena, então a home
- * mostra tudo de uma vez em vez de vitrines separadas — quem chega vê o que
- * existe sem precisar navegar.
+ * Catálogo inteiro, do mais novo para o mais antigo. As listas do painel já
+ * têm as prateleiras delas no topo da home, então repetir os mesmos produtos
+ * na frente desta lista só empurraria o resto do catálogo para baixo.
  */
 export function getAllProducts(take = 60) {
   return db.product.findMany({
     where: { active: true },
     select: PRODUCT_CARD_SELECT,
-    orderBy: [{ featured: "desc" }, { createdAt: "desc" }],
-    take,
-  });
-}
-
-/**
- * Produtos marcados como destaque no admin. Alimenta a aba /destaques — é a
- * curadoria da loja, não um ranking de venda.
- */
-export function getFeaturedProducts(take = 24) {
-  return db.product.findMany({
-    where: { active: true, featured: true },
-    select: PRODUCT_CARD_SELECT,
     orderBy: { createdAt: "desc" },
     take,
   });
 }
-
-/** O header só mostra a aba de destaques quando existe algo lá dentro. */
-export const countFeaturedProducts = cache(() =>
-  db.product.count({ where: { active: true, featured: true } }),
-);
 
 export type ProductFilters = {
   q?: string;

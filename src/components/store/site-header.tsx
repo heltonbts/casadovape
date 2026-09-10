@@ -4,22 +4,24 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Menu, Search, ShoppingBag, Sparkles, X } from "lucide-react";
+import { LayoutList, Menu, Search, ShoppingBag, X } from "lucide-react";
 import { cartCount, useCart } from "@/lib/cart";
 import { cn } from "@/lib/utils";
 
 type NavCategory = { name: string; slug: string };
+type NavCollection = { name: string; slug: string };
 
 export function SiteHeader({
   storeName,
   announcement,
   categories,
-  showFeatured,
+  collections,
 }: {
   storeName: string;
   announcement?: string | null;
   categories: NavCategory[];
-  showFeatured: boolean;
+  /** As listas montadas no painel, na ordem definida lá. */
+  collections: NavCollection[];
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
@@ -107,19 +109,20 @@ export function SiteHeader({
 
         {/* Categorias — rola horizontalmente no mobile */}
         <nav className="no-scrollbar hidden gap-1 overflow-x-auto border-t border-white/5 px-4 py-2 lg:flex lg:justify-center">
-          {showFeatured && (
+          {collections.map((c) => (
             <Link
-              href="/destaques"
+              key={c.slug}
+              href={`/lista/${c.slug}`}
               className={cn(
                 "inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm transition hover:bg-white/5 hover:text-white",
-                pathname === "/destaques"
+                pathname === `/lista/${c.slug}`
                   ? "bg-brand-500/15 font-medium text-brand-200"
                   : "text-white/60",
               )}
             >
-              <Sparkles size={14} /> Destaques
+              <LayoutList size={14} /> {c.name}
             </Link>
-          )}
+          ))}
           {categories.map((c) => (
             <Link
               key={c.slug}
@@ -142,18 +145,19 @@ export function SiteHeader({
             <input name="q" placeholder="Buscar…" className="field pl-9" aria-label="Buscar produtos" />
           </form>
           <div className="flex flex-col">
-            {showFeatured && (
+            {collections.map((c) => (
               <Link
-                href="/destaques"
+                key={c.slug}
+                href={`/lista/${c.slug}`}
                 onClick={closeMenu}
                 className={cn(
                   "inline-flex items-center gap-2 rounded-lg px-2 py-2.5 font-medium",
-                  pathname === "/destaques" ? "text-brand-200" : "text-white",
+                  pathname === `/lista/${c.slug}` ? "text-brand-200" : "text-white",
                 )}
               >
-                <Sparkles size={15} /> Destaques
+                <LayoutList size={15} /> {c.name}
               </Link>
-            )}
+            ))}
             <Link
               href="/produtos"
               onClick={closeMenu}
