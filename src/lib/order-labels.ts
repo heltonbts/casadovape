@@ -1,4 +1,4 @@
-import type { OrderStatus } from "@/generated/prisma/enums";
+import type { OrderStatus, PaymentMethod } from "@/generated/prisma/enums";
 
 export const ORDER_STATUS: Record<
   OrderStatus,
@@ -18,3 +18,9 @@ export const ORDER_STATUS_ORDER: OrderStatus[] = [
   "DELIVERED",
   "CANCELED",
 ];
+
+export const PAYMENT_LABEL: Record<PaymentMethod, string> = {
+  PIX: "Pix",
+  CASH: "Dinheiro",
+  CARD_ON_DELIVERY: "Cartão na entrega",
+};

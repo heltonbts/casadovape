@@ -15,6 +15,7 @@ import {
   ShoppingCart,
   Tags,
   Ticket,
+  Wallet,
   X,
   Zap,
 } from "lucide-react";
@@ -25,6 +26,7 @@ import { cn } from "@/lib/utils";
 const NAV = [
   { href: "/admin", label: "Visão geral", icon: LayoutDashboard, exact: true },
   { href: "/admin/pedidos", label: "Pedidos", icon: ShoppingCart },
+  { href: "/admin/financeiro", label: "Financeiro", icon: Wallet },
   { href: "/admin/produtos", label: "Produtos", icon: Package },
   { href: "/admin/estoque", label: "Estoque", icon: Boxes },
   { href: "/admin/categorias", label: "Categorias e marcas", icon: Tags },

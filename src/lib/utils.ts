@@ -95,3 +95,21 @@ export function whatsappLink(phone: string, message: string) {
   if (digits.length <= 11) digits = `55${digits}`;
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 }
+
+/** Meia-noite de um dia "2026-09-10" em Aracati, como instante real. */
+export function storeDayStart(day: string) {
+  return new Date(`${day}T00:00:00${STORE_UTC_OFFSET}`);
+}
+
+/** Meia-noite do dia SEGUINTE — limite superior exclusivo de um intervalo. */
+export function storeDayEnd(day: string) {
+  const start = storeDayStart(day);
+  start.setUTCDate(start.getUTCDate() + 1);
+  return start;
+}
+
+/** "2026-09-10" => "10/09". Rótulo curto para eixos e listas por dia. */
+export function formatShortDay(day: string) {
+  const [, month, date] = day.split("-");
+  return `${date}/${month}`;
+}
