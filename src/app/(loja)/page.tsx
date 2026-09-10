@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, Sparkles, Truck, Zap } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button";
@@ -21,8 +20,8 @@ export default async function HomePage() {
   return (
     <div className="mx-auto max-w-7xl px-4">
       {/* ------------------------------------------------------------- hero */}
-      <section className="grid gap-8 py-10 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:py-16">
-        <div>
+      <section className="py-10 lg:py-16">
+        <div className="max-w-3xl">
           <span className="inline-flex items-center gap-2 rounded-full border border-brand-400/25 bg-brand-500/10 px-3 py-1 text-xs font-medium text-brand-200">
             <Sparkles size={13} /> Loja oficial · produtos originais
           </span>
@@ -61,20 +60,6 @@ export default async function HomePage() {
           </dl>
         </div>
 
-        <div className="relative">
-          <div className="surface relative overflow-hidden p-8">
-            <div className="absolute -right-16 -top-16 size-56 rounded-full bg-brand-500/25 blur-3xl" />
-            <div className="absolute -bottom-16 -left-10 size-48 rounded-full bg-accent-500/20 blur-3xl" />
-            <Image
-              src="/logo.png"
-              alt={settings.storeName}
-              width={800}
-              height={773}
-              priority
-              className="relative mx-auto w-full max-w-sm drop-shadow-[0_18px_45px_rgba(124,34,206,0.45)]"
-            />
-          </div>
-        </div>
       </section>
 
       {/* ----------------------------------------------- listas da loja
