@@ -18,7 +18,10 @@ const MOVEMENT_LABEL = {
 
 export default async function EstoquePage() {
   const [variants, movements] = await Promise.all([
+    // Combos ficam de fora: o saldo deles é derivado dos itens, e listá-los
+    // aqui encheria a tela de "esgotado" que ninguém precisa repor.
     db.productVariant.findMany({
+      where: { product: { isCombo: false } },
       orderBy: [{ stock: "asc" }, { name: "asc" }],
       include: {
         product: { select: { id: true, name: true, priceCents: true, costCents: true, active: true } },

@@ -29,6 +29,10 @@ const productSchema = z.object({
   brandId: z.string().nullable(),
   featured: z.boolean(),
   active: z.boolean(),
+  isCombo: z.boolean().default(false),
+  comboItems: z
+    .array(z.object({ variantId: z.string().min(1), quantity: z.number().int().positive().max(99) }))
+    .default([]),
   puffs: z.number().int().nonnegative().nullable(),
   nicotineMg: z.string().trim().optional(),
   liquidMl: z.string().trim().optional(),
@@ -65,6 +69,24 @@ export async function saveProductAction(input: ProductInput): Promise<SaveResult
     return { ok: false, error: "Há variantes com o mesmo nome" };
   }
 
+  if (data.isCombo) {
+    if (data.comboItems.length < 2) {
+      return { ok: false, error: "Um combo precisa de pelo menos 2 produtos dentro" };
+    }
+    const ids = data.comboItems.map((i) => i.variantId);
+    if (new Set(ids).size !== ids.length) {
+      return { ok: false, error: "O mesmo item aparece duas vezes no combo — use a quantidade" };
+    }
+    // Um combo dentro de outro faria a baixa de estoque descer em cascata, e
+    // um ciclo travaria o pedido. Um nível só.
+    const nested = await db.productVariant.count({
+      where: { id: { in: ids }, product: { isCombo: true } },
+    });
+    if (nested > 0) {
+      return { ok: false, error: "Combo não pode conter outro combo" };
+    }
+  }
+
   const slug = await uniqueSlug(data.slug?.trim() || data.name, data.id);
 
   const base = {
@@ -79,6 +101,7 @@ export async function saveProductAction(input: ProductInput): Promise<SaveResult
     brandId: data.brandId,
     featured: data.featured,
     active: data.active,
+    isCombo: data.isCombo,
     puffs: data.puffs,
     nicotineMg: data.nicotineMg || null,
     liquidMl: data.liquidMl || null,
@@ -153,6 +176,21 @@ export async function saveProductAction(input: ProductInput): Promise<SaveResult
             });
           }
         }
+      }
+
+      // A composição é reescrita a cada salvamento, como as imagens: a tela é
+      // a verdade. Desmarcar "é um combo" esvazia a lista, e o produto volta a
+      // viver do estoque das próprias variantes.
+      await tx.comboItem.deleteMany({ where: { comboId: saved.id } });
+      if (data.isCombo && data.comboItems.length > 0) {
+        await tx.comboItem.createMany({
+          data: data.comboItems.map((item, i) => ({
+            comboId: saved.id,
+            variantId: item.variantId,
+            quantity: item.quantity,
+            position: i,
+          })),
+        });
       }
 
       return saved;

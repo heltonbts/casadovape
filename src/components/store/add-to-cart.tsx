@@ -136,7 +136,11 @@ export function AddToCart({
       ) : (
         <>
           {variant.stock <= 5 && (
-            <p className="text-sm text-amber-300">Últimas unidades de {variant.name}.</p>
+            <p className="text-sm text-amber-300">
+              {/* "Padrão" é nome de bastidor: produto sem sabores e combo usam
+                  essa variante única, e o cliente não tem o que fazer com ela. */}
+              Últimas unidades{variants.length > 1 ? ` de ${variant.name}` : ""}.
+            </p>
           )}
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button size="lg" className="flex-1" onClick={() => handleAdd(true)}>

@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, MessageCircle, ShieldCheck, Truck } from "lucide-react";
+import { ChevronRight, MessageCircle, Package, ShieldCheck, Truck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AddToCart } from "@/components/store/add-to-cart";
 import { ProductCard } from "@/components/store/product-card";
 import { ProductThumb } from "@/components/store/product-thumb";
 import { getProductBySlug, getRelatedProducts } from "@/lib/catalog";
+import { comboLooseTotal, comboStock } from "@/lib/combo";
 import { getSettings } from "@/lib/settings";
 import { brl, whatsappLink } from "@/lib/utils";
 
@@ -29,7 +30,13 @@ export default async function ProdutoPage(props: PageProps<"/produto/[slug]">) {
     getRelatedProducts(product.id, product.categoryId, 4),
   ]);
 
-  const stock = product.variants.reduce((sum, v) => sum + v.stock, 0);
+  // Combo não soma o próprio estoque: ele vale o que dá para montar com os
+  // itens de dentro.
+  const stock = product.isCombo
+    ? comboStock(product.comboItems)
+    : product.variants.reduce((sum, v) => sum + v.stock, 0);
+  const looseTotal = product.isCombo ? comboLooseTotal(product.comboItems) : 0;
+  const savings = looseTotal - product.priceCents;
   const discount =
     product.compareAtCents && product.compareAtCents > product.priceCents
       ? Math.round((1 - product.priceCents / product.compareAtCents) * 100)
@@ -97,6 +104,11 @@ export default async function ProdutoPage(props: PageProps<"/produto/[slug]">) {
         {/* --------------------------------------------------------- compra */}
         <div>
           <div className="flex flex-wrap items-center gap-2">
+            {product.isCombo && (
+              <Badge tone="brand">
+                <Package size={12} /> Combo
+              </Badge>
+            )}
             {product.brand && <Badge tone="brand">{product.brand.name}</Badge>}
             {discount && <Badge tone="accent">-{discount}% OFF</Badge>}
             {stock > 0 ? (
@@ -123,6 +135,40 @@ export default async function ProdutoPage(props: PageProps<"/produto/[slug]">) {
             À vista no Pix{settings.pixKey ? " · aprovação imediata" : ""}
           </p>
 
+          {product.isCombo && product.comboItems.length > 0 && (
+            <div className="surface mt-5 p-4">
+              <h2 className="flex items-center gap-2 text-sm font-bold text-white">
+                <Package size={15} className="text-brand-200" /> O que vem no combo
+              </h2>
+              <ul className="mt-3 space-y-2.5">
+                {product.comboItems.map((item) => (
+                  <li key={item.variant.id} className="flex items-center gap-3">
+                    <ProductThumb
+                      src={item.variant.product.images[0]?.url}
+                      alt={item.variant.product.images[0]?.alt}
+                      name={item.variant.product.name}
+                      sizes="48px"
+                      className="size-12 shrink-0 rounded-lg"
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm text-white">
+                        {item.quantity > 1 && `${item.quantity}× `}
+                        {item.variant.product.name}
+                      </span>
+                      <span className="text-xs text-white/45">{item.variant.name}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              {savings > 0 && (
+                <p className="mt-3 border-t border-white/8 pt-3 text-sm text-emerald-300">
+                  Separado sairia {brl(looseTotal)} — você economiza{" "}
+                  <strong className="font-semibold">{brl(savings)}</strong>.
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="my-6 h-px bg-white/8" />
 
           <AddToCart
@@ -133,7 +179,8 @@ export default async function ProdutoPage(props: PageProps<"/produto/[slug]">) {
             variants={product.variants.map((v) => ({
               id: v.id,
               name: v.name,
-              stock: v.stock,
+              // O combo tem uma variante só, e o saldo dela é o do conjunto.
+              stock: product.isCombo ? stock : v.stock,
               priceCents: v.priceCents,
             }))}
           />

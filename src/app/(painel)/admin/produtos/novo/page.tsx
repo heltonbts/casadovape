@@ -2,14 +2,16 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/admin/ui";
 import { EMPTY_PRODUCT, ProductForm } from "@/components/admin/product-form";
+import { getComboSourceVariants } from "@/lib/combo-source";
 import { db } from "@/lib/db";
 
 export const metadata = { title: "Novo produto" };
 
 export default async function NovoProdutoPage() {
-  const [categories, brands] = await Promise.all([
+  const [categories, brands, variants] = await Promise.all([
     db.category.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     db.brand.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    getComboSourceVariants(),
   ]);
 
   return (
@@ -21,7 +23,12 @@ export default async function NovoProdutoPage() {
         <ArrowLeft size={15} /> Voltar aos produtos
       </Link>
       <PageHeader title="Novo produto" description="Cadastre um item do catálogo." />
-      <ProductForm initial={EMPTY_PRODUCT} categories={categories} brands={brands} />
+      <ProductForm
+        initial={EMPTY_PRODUCT}
+        categories={categories}
+        brands={brands}
+        variants={variants}
+      />
     </>
   );
 }

@@ -99,13 +99,12 @@ export async function setOrderStatus(orderId: string, status: OrderStatus, admin
     const shouldConsume = CONSUMES_STOCK.includes(status);
 
     if (shouldConsume && !order.stockApplied) {
-      for (const item of order.items) {
-        if (!item.variantId) continue;
+      for (const line of await explodeItems(tx, order.items)) {
         await applyMovement(tx, {
-          variantId: item.variantId,
+          variantId: line.variantId,
           type: "SALE",
-          quantity: -item.quantity,
-          reason: `Pedido #${order.number}`,
+          quantity: -line.quantity,
+          reason: line.reason(`Pedido #${order.number}`),
           orderId: order.id,
           adminId,
         });
@@ -113,13 +112,12 @@ export async function setOrderStatus(orderId: string, status: OrderStatus, admin
     }
 
     if (!shouldConsume && order.stockApplied) {
-      for (const item of order.items) {
-        if (!item.variantId) continue;
+      for (const line of await explodeItems(tx, order.items)) {
         await applyMovement(tx, {
-          variantId: item.variantId,
+          variantId: line.variantId,
           type: "RETURN",
-          quantity: item.quantity,
-          reason: `Estorno do pedido #${order.number}`,
+          quantity: line.quantity,
+          reason: line.reason(`Estorno do pedido #${order.number}`),
           orderId: order.id,
           adminId,
         });
@@ -131,4 +129,50 @@ export async function setOrderStatus(orderId: string, status: OrderStatus, admin
       data: { status, stockApplied: shouldConsume },
     });
   });
+}
+
+/**
+ * Traduz os itens do pedido no que sai de fato da prateleira. Item comum é ele
+ * mesmo; combo vira as variantes de dentro, multiplicadas pela quantidade
+ * vendida. O combo não tem estoque próprio, então movimentar a variante dele
+ * seria mexer num saldo que ninguém repõe.
+ *
+ * A composição é lida no momento da baixa, e não no do pedido: se o combo for
+ * remontado entre a venda e a confirmação, vale o que ele é agora — que é o
+ * que a loja vai separar para entregar.
+ */
+async function explodeItems(tx: Tx, items: { variantId: string | null; quantity: number }[]) {
+  const lines: { variantId: string; quantity: number; reason: (base: string) => string }[] = [];
+
+  for (const item of items) {
+    if (!item.variantId) continue;
+
+    const variant = await tx.productVariant.findUnique({
+      where: { id: item.variantId },
+      select: {
+        product: {
+          select: {
+            name: true,
+            isCombo: true,
+            comboItems: { select: { variantId: true, quantity: true } },
+          },
+        },
+      },
+    });
+
+    if (!variant?.product.isCombo) {
+      lines.push({ variantId: item.variantId, quantity: item.quantity, reason: (base) => base });
+      continue;
+    }
+
+    for (const part of variant.product.comboItems) {
+      lines.push({
+        variantId: part.variantId,
+        quantity: item.quantity * Math.max(1, part.quantity),
+        reason: (base) => `${base} · combo ${variant.product.name}`,
+      });
+    }
+  }
+
+  return lines;
 }

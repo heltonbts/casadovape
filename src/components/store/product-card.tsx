@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ProductThumb } from "@/components/store/product-thumb";
 import { brl } from "@/lib/utils";
@@ -26,8 +27,15 @@ export function ProductCard({ product, priority }: { product: ProductCardData; p
           className="aspect-square w-full transition duration-300 group-hover:scale-[1.02]"
         />
         <div className="absolute left-2 top-2 flex flex-col items-start gap-1">
+          {product.isCombo && (
+            <Badge tone="brand">
+              <Package size={11} /> Combo
+            </Badge>
+          )}
           {discount && <Badge tone="accent">-{discount}%</Badge>}
-          {product.featured && !discount && <Badge tone="brand">Destaque</Badge>}
+          {product.featured && !discount && !product.isCombo && (
+            <Badge tone="brand">Destaque</Badge>
+          )}
         </div>
         {soldOut && (
           <div className="absolute inset-0 grid place-items-center rounded-xl bg-ink-950/70">
@@ -65,8 +73,14 @@ export function ProductCard({ product, priority }: { product: ProductCardData; p
             <span className="mr-2 text-xs text-white/35 line-through">{brl(product.compareAtCents)}</span>
           )}
           <span className="text-lg font-bold text-white">{brl(product.priceCents)}</span>
-          {product.variants.length > 1 && (
-            <p className="mt-0.5 text-[11px] text-white/40">{product.variants.length} sabores</p>
+          {product.isCombo ? (
+            <p className="mt-0.5 text-[11px] text-white/40">
+              {product.comboItems.length} produtos juntos
+            </p>
+          ) : (
+            product.variants.length > 1 && (
+              <p className="mt-0.5 text-[11px] text-white/40">{product.variants.length} sabores</p>
+            )
           )}
         </div>
       </div>

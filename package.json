@@ -14,6 +14,7 @@
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "test:stock": "NODE_OPTIONS=--conditions=react-server tsx scripts/test-stock.ts",
+    "test:combo": "NODE_OPTIONS=--conditions=react-server tsx scripts/test-combo.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/admin/ui";
 import { ProductForm, type ProductFormData } from "@/components/admin/product-form";
+import { getComboSourceVariants } from "@/lib/combo-source";
 import { db } from "@/lib/db";
 import { fromCents } from "@/lib/utils";
 
@@ -15,16 +16,18 @@ export async function generateMetadata(props: PageProps<"/admin/produtos/[id]">)
 export default async function EditarProdutoPage(props: PageProps<"/admin/produtos/[id]">) {
   const { id } = await props.params;
 
-  const [product, categories, brands] = await Promise.all([
+  const [product, categories, brands, comboVariants] = await Promise.all([
     db.product.findUnique({
       where: { id },
       include: {
         images: { orderBy: { position: "asc" } },
         variants: { orderBy: { position: "asc" } },
+        comboItems: { orderBy: { position: "asc" } },
       },
     }),
     db.category.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     db.brand.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    getComboSourceVariants(id),
   ]);
   if (!product) notFound();
 
@@ -56,6 +59,11 @@ export default async function EditarProdutoPage(props: PageProps<"/admin/produto
       lowStockAlert: String(v.lowStockAlert),
       active: v.active,
     })),
+    isCombo: product.isCombo,
+    comboItems: product.comboItems.map((c) => ({
+      variantId: c.variantId,
+      quantity: String(c.quantity),
+    })),
   };
 
   return (
@@ -67,7 +75,12 @@ export default async function EditarProdutoPage(props: PageProps<"/admin/produto
         <ArrowLeft size={15} /> Voltar aos produtos
       </Link>
       <PageHeader title={product.name} description="Editar produto do catálogo." />
-      <ProductForm initial={initial} categories={categories} brands={brands} />
+      <ProductForm
+        initial={initial}
+        categories={categories}
+        brands={brands}
+        variants={comboVariants}
+      />
     </>
   );
 }

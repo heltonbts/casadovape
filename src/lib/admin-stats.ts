@@ -28,7 +28,8 @@ export async function getDashboardStats() {
       SELECT v.id, v.name, v.stock, v."lowStockAlert", p.name AS "productName", p.slug
       FROM "ProductVariant" v
       JOIN "Product" p ON p.id = v."productId"
-      WHERE v.active = true AND p.active = true AND v.stock <= v."lowStockAlert"
+      WHERE v.active = true AND p.active = true AND p."isCombo" = false
+        AND v.stock <= v."lowStockAlert"
       ORDER BY v.stock ASC
       LIMIT 12
     `,

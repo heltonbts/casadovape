@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { comboStock } from "@/lib/combo";
 import { db } from "@/lib/db";
 
 const itemSchema = z.object({
@@ -45,7 +46,16 @@ export async function createWhatsappOrder(
           name: true,
           active: true,
           priceCents: true,
+          isCombo: true,
           images: { select: { url: true }, orderBy: { position: "asc" }, take: 1 },
+          comboItems: {
+            select: {
+              quantity: true,
+              variant: {
+                select: { stock: true, name: true, product: { select: { name: true } } },
+              },
+            },
+          },
         },
       },
     },
@@ -57,13 +67,32 @@ export async function createWhatsappOrder(
     if (!variant || !variant.product.active) {
       return { ok: false, error: "Um dos produtos do carrinho não está mais disponível" };
     }
-    if (variant.stock < item.quantity) {
+    // Combo não tem estoque próprio: o que limita é o item mais escasso lá
+    // dentro, e é ele que o cliente precisa ver no aviso.
+    const available = variant.product.isCombo
+      ? comboStock(variant.product.comboItems)
+      : variant.stock;
+
+    if (available < item.quantity) {
+      const scarcest = variant.product.isCombo
+        ? [...variant.product.comboItems].sort(
+            (a, b) =>
+              Math.floor(a.variant.stock / Math.max(1, a.quantity)) -
+              Math.floor(b.variant.stock / Math.max(1, b.quantity)),
+          )[0]
+        : null;
+      const label = scarcest
+        ? `${scarcest.variant.product.name} (${scarcest.variant.name})`
+        : `${variant.product.name} (${variant.name})`;
+
       return {
         ok: false,
         error:
-          variant.stock === 0
-            ? `${variant.product.name} (${variant.name}) esgotou`
-            : `Só restam ${variant.stock} unidades de ${variant.product.name} (${variant.name})`,
+          available === 0
+            ? variant.product.isCombo
+              ? `O combo ${variant.product.name} esgotou — acabou o ${label}`
+              : `${label} esgotou`
+            : `Só ${available > 1 ? `restam ${available} unidades` : "resta 1 unidade"} de ${variant.product.name}`,
       };
     }
     const unitCents = variant.priceCents ?? variant.product.priceCents;

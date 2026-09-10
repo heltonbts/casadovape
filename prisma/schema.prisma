@@ -78,6 +78,11 @@ model Product {
   featured Boolean @default(false)
   active   Boolean @default(true)
 
+  /// Combo não tem estoque próprio: ele consome o das variantes que o compõem,
+  /// e a disponibilidade sai do item mais escasso. O preço continua sendo o
+  /// `priceCents` digitado à mão — é ele que faz o combo valer a pena.
+  isCombo Boolean @default(false)
+
   // Atributos típicos de vape (opcionais)
   puffs        Int?
   nicotineMg   String?
@@ -94,6 +99,7 @@ model Product {
   variants    ProductVariant[]
   items       OrderItem[]
   collections CollectionItem[]
+  comboItems  ComboItem[]      @relation("ComboContents")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -132,6 +138,7 @@ model ProductVariant {
 
   movements StockMovement[]
   items     OrderItem[]
+  inCombos  ComboItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -179,6 +186,27 @@ model CollectionItem {
 
   @@unique([collectionId, productId])
   @@index([collectionId, position])
+}
+
+// ------------------------------------------------------------------ combos
+
+/// Um item dentro de um combo. Aponta para a VARIANTE, não para o produto,
+/// porque é na variante que o estoque vive — um combo é sempre de sabores
+/// definidos, e não de "qualquer sabor".
+model ComboItem {
+  id        String         @id @default(cuid())
+  comboId   String
+  combo     Product        @relation("ComboContents", fields: [comboId], references: [id], onDelete: Cascade)
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  /// Quantas unidades dessa variante saem a cada combo vendido.
+  quantity  Int            @default(1)
+  position  Int            @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@unique([comboId, variantId])
+  @@index([comboId, position])
 }
 
 // ---------------------------------------------------------------- estoque

@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { db } from "@/lib/db";
+import { comboStock, type ComboItemStock } from "@/lib/combo";
 import type { Prisma } from "@/generated/prisma/client";
 
 export const PRODUCT_CARD_SELECT = {
@@ -10,6 +11,7 @@ export const PRODUCT_CARD_SELECT = {
   priceCents: true,
   compareAtCents: true,
   featured: true,
+  isCombo: true,
   puffs: true,
   nicotineMg: true,
   category: { select: { name: true, slug: true } },
@@ -20,12 +22,35 @@ export const PRODUCT_CARD_SELECT = {
     select: { id: true, name: true, stock: true, priceCents: true },
     orderBy: { position: "asc" },
   },
+  comboItems: {
+    orderBy: { position: "asc" },
+    select: {
+      quantity: true,
+      variant: {
+        select: {
+          id: true,
+          name: true,
+          stock: true,
+          priceCents: true,
+          product: { select: { name: true, slug: true, priceCents: true } },
+        },
+      },
+    },
+  },
 } satisfies Prisma.ProductSelect;
 
 export type ProductCardData = Prisma.ProductGetPayload<{ select: typeof PRODUCT_CARD_SELECT }>;
 
-export const totalStock = (p: { variants: { stock: number }[] }) =>
-  p.variants.reduce((sum, v) => sum + v.stock, 0);
+/**
+ * Saldo que a vitrine enxerga. Num produto normal é a soma das variantes; num
+ * combo é quantos conjuntos dá para montar, porque as unidades de dentro são
+ * as mesmas que o cliente pode comprar avulsas.
+ */
+export const totalStock = (p: {
+  isCombo?: boolean;
+  variants: { stock: number }[];
+  comboItems?: ComboItemStock[];
+}) => (p.isCombo ? comboStock(p.comboItems ?? []) : p.variants.reduce((sum, v) => sum + v.stock, 0));
 
 export const getCategories = cache(() =>
   db.category.findMany({
@@ -117,6 +142,29 @@ export function getProductBySlug(slug: string) {
       brand: true,
       images: { orderBy: { position: "asc" } },
       variants: { where: { active: true }, orderBy: { position: "asc" } },
+      comboItems: {
+        orderBy: { position: "asc" },
+        select: {
+          quantity: true,
+          variant: {
+            select: {
+              id: true,
+              name: true,
+              stock: true,
+              priceCents: true,
+              product: {
+                select: {
+                  name: true,
+                  slug: true,
+                  priceCents: true,
+                  active: true,
+                  images: { select: { url: true, alt: true }, orderBy: { position: "asc" }, take: 1 },
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 }

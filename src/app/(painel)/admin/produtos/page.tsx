@@ -5,6 +5,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { EmptyState, PageHeader, TableWrap, Td, Th } from "@/components/admin/ui";
 import { ProductRowActions } from "@/components/admin/product-row-actions";
 import { db } from "@/lib/db";
+import { comboStock } from "@/lib/combo";
 import { brl } from "@/lib/utils";
 
 export const metadata = { title: "Produtos" };
@@ -27,6 +28,8 @@ export default async function ProdutosAdminPage(props: PageProps<"/admin/produto
       category: { select: { name: true } },
       brand: { select: { name: true } },
       variants: { select: { stock: true, lowStockAlert: true, active: true } },
+      comboItems: { select: { quantity: true, variant: { select: { stock: true } } } },
+      _count: { select: { comboItems: true } },
     },
   });
 
@@ -76,8 +79,12 @@ export default async function ProdutosAdminPage(props: PageProps<"/admin/produto
           </thead>
           <tbody>
             {products.map((product) => {
-              const stock = product.variants.reduce((sum, v) => sum + v.stock, 0);
-              const low = product.variants.some((v) => v.active && v.stock <= v.lowStockAlert);
+              const stock = product.isCombo
+                ? comboStock(product.comboItems)
+                : product.variants.reduce((sum, v) => sum + v.stock, 0);
+              const low = product.isCombo
+                ? stock === 0
+                : product.variants.some((v) => v.active && v.stock <= v.lowStockAlert);
               return (
                 <tr key={product.id} className="hover:bg-white/[0.02]">
                   <Td>
@@ -88,7 +95,10 @@ export default async function ProdutosAdminPage(props: PageProps<"/admin/produto
                       {product.name}
                     </Link>
                     <span className="block text-xs text-white/35">
-                      {product.brand?.name ?? "sem marca"} · {product.variants.length} variantes
+                      {product.brand?.name ?? "sem marca"} ·{" "}
+                      {product.isCombo
+                        ? `combo de ${product._count.comboItems} ${product._count.comboItems === 1 ? "item" : "itens"}`
+                        : `${product.variants.length} variantes`}
                     </span>
                   </Td>
                   <Td className="text-white/55">{product.category?.name ?? "—"}</Td>
@@ -100,7 +110,9 @@ export default async function ProdutosAdminPage(props: PageProps<"/admin/produto
                   </Td>
                   <Td>
                     {product.active ? (
-                      product.featured ? (
+                      product.isCombo ? (
+                        <Badge tone="brand">Combo</Badge>
+                      ) : product.featured ? (
                         <Badge tone="brand">Destaque</Badge>
                       ) : (
                         <Badge tone="success">Ativo</Badge>
